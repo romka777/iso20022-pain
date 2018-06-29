@@ -220,7 +220,11 @@ abstract class CreditTransfer
     {
         $creditor = $doc->createElement('Cdtr');
         $creditor->appendChild(Text::xml($doc, 'Nm', $this->creditorName));
-        $creditor->appendChild($this->creditorAddress->asDom($doc));
+
+        // The postal address is optional.
+        if ($this->creditorAddress !== null) {
+            $creditor->appendChild($this->creditorAddress->asDom($doc));
+        }
 
         return $creditor;
     }

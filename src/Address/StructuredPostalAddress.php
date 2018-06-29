@@ -45,7 +45,7 @@ class StructuredPostalAddress implements PostalAddressInterface
      *
      * @throws \InvalidArgumentException When the address contains invalid characters or is too long.
      */
-    public function __construct($street, $buildingNo, $postCode, $town, $country = 'CH')
+    public function __construct($street, $buildingNo, $postCode, $town, $country)
     {
         $this->street = Text::assertOptional($street, 70);
         $this->buildingNo = Text::assertOptional($buildingNo, 16);

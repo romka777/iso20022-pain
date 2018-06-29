@@ -18,8 +18,15 @@ class UkBank implements FinancialInstitutionInterface
     const MAX_LENGTH = 10;
     const PATTERN = '/^[0-9]{6,6}$/';
 
-    // FPS clearing
-    const GB_CLAERING = 'GBDSC';
+    // External ClearingSystem Identification1 Code.
+    // GBDSC == UK Domestic Sort Code (Bank Branch code used in the UK)
+    // There is a list of 26 of these codes, so this can be generalised.
+    // Each could be generated from an IBAN (like for IID) or generated
+    // from the clearing system ID code alone. Note that IBAN formats
+    // vary bewteen countries, so a library to parse the IBAN would be
+    // needed.
+
+    const GB_CLEARING = 'GBDSC';
 
     /**
      * @var string
@@ -99,7 +106,7 @@ class UkBank implements FinancialInstitutionInterface
         $xml = $doc->createElement('FinInstnId');
         $ClrSysMmbId = $xml->appendChild($doc->createElement('ClrSysMmbId'));
         $ClrSysId = $ClrSysMmbId->appendChild($doc->createElement('ClrSysId'));
-        $ClrSysId->appendChild($doc->createElement('Cd', static::GB_CLAERING));
+        $ClrSysId->appendChild($doc->createElement('Cd', static::GB_CLEARING));
         $ClrSysMmbId->appendChild($doc->createElement('MmbId', $this->format()));
 
         return $xml;

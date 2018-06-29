@@ -61,6 +61,9 @@ class IID implements FinancialInstitutionInterface
     }
 
     /**
+     * CHBCC = Swiss Financial Institution Identification (short)
+     * Financial Institution Identification (IId) used in Switzerland, without check digit
+     *
      * {@inheritdoc}
      */
     public function asDom(DOMDocument $doc)

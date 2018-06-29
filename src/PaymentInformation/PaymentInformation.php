@@ -4,10 +4,10 @@ namespace Consilience\Pain001\PaymentInformation;
 
 use Consilience\Pain001\FinancialInstitution\BIC;
 use Consilience\Pain001\FinancialInstitutionInterface;
+use Consilience\Pain001\PostalAddressInterface;
 use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\Account\IBAN;
 use Consilience\Pain001\Account\UkBank;
-use Consilience\Pain001\FinancialInstitution\IID;
 use Money\Money;
 use Consilience\Pain001\Money\Mixed;
 use Consilience\Pain001\Text;
@@ -18,6 +18,18 @@ use Consilience\Pain001\TransactionInformation\CreditTransfer;
  */
 class PaymentInformation
 {
+    /**
+     * @var string Payment Method (TransferAdvice)
+     */
+    const PAYMENT_METHOD_TRANSFERADVICE = 'TRF';
+
+    /**
+     * @var string Payment Type (LocalInstrument)
+     */
+    const LOCALINSTRUMENT_SIP = '10';
+    const LOCALINSTRUMENT_SOP = '30';
+    const LOCALINSTRUMENT_FDP = '40';
+
     /**
      * @var string
      */
@@ -69,12 +81,17 @@ class PaymentInformation
     protected $debtorAccountDetail;
 
     /**
+     * @var PostalAddressInterface
+     */
+    protected $debtorPostalAdress;
+
+    /**
      * Constructor
      *
      * @param string  $id          Identifier of this group (should be unique within a message)
      * @param string  $debtorName  Name of the debtor
-     * @param BIC|IID $debtorAgent BIC or IID of the debtor's financial institution
-     * @param IBAN    $debtorIBAN  IBAN of the debtor's account
+     * @param FinancialInstitutionInterface $debtorAgent BIC or IID of the debtor's financial institution
+     * @param AccountInterface $debtorIBAN  IBAN of the debtor's account
      *
      * @throws \InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
@@ -82,7 +99,8 @@ class PaymentInformation
         $id,
         $debtorName,
         FinancialInstitutionInterface $debtorAgent,
-        AccountInterface $debtorAccountDetail
+        AccountInterface $debtorAccountDetail,
+        PostalAddressInterface $debtorPostalAdress = null
     ) {
         // Also allows UkBank
         /*if (!$debtorAgent instanceof BIC && !$debtorAgent instanceof IID) {
@@ -92,10 +110,16 @@ class PaymentInformation
         $this->id = Text::assertIdentifier($id);
         $this->transactions = [];
         $this->batchBooking = true;
+
+        // FIXME: This will pick up the local timezone by default.
+        // We want to make sure we always get the right day when hovering
+        // around midnight.
         $this->executionDate = new \DateTime();
+
         $this->debtorName = Text::assert($debtorName, 70);
         $this->debtorAgent = $debtorAgent;
         $this->debtorAccountDetail = $debtorAccountDetail;
+        $this->debtorPostalAdress = $debtorPostalAdress;
     }
 
     /**
@@ -189,7 +213,8 @@ class PaymentInformation
     }
 
     /**
-     * Sets the local instrument
+     * Sets the local instrument.
+     * Payment Type: 10=SIP 30=SOP 40=FDP
      *
      * @return $this
      */
@@ -235,11 +260,22 @@ class PaymentInformation
         $root = $doc->createElement('PmtInf');
 
         $root->appendChild(Text::xml($doc, 'PmtInfId', $this->id));
-        $root->appendChild($doc->createElement('PmtMtd', 'TRF'));
+
+        // Payment Method.
+        // CHK (Cheque), TRF (TransferAdvice), TRA (CreditTransfer)
+        // Must always be TRF for the electronic payments we are dealing with here..
+
+        $root->appendChild($doc->createElement(
+            'PmtMtd',
+            static::PAYMENT_METHOD_TRANSFERADVICE
+        ));
+
+        $root->appendChild($doc->createElement(
+            'BtchBookg',
+            ($this->batchBooking ? 'true' : 'false')
+        ));
 
         // Payment Type: 10=SIP 30=SOP 40=FDP
-
-        $root->appendChild($doc->createElement('BtchBookg', ($this->batchBooking ? 'true' : 'false')));
 
         if ($this->hasPaymentTypeInformation()) {
             $paymentType = $doc->createElement('PmtTpInf');
@@ -270,8 +306,16 @@ class PaymentInformation
 
         $root->appendChild($doc->createElement('ReqdExctnDt', $this->executionDate->format('Y-m-d')));
 
+        // Debtor name and optional postal address.
+
         $debtor = $doc->createElement('Dbtr');
         $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
+
+        // Include the optional debtor postal address if supplied.
+        if ($this->debtorPostalAdress !== null) {
+            $debtor->appendChild($this->debtorPostalAdress->asDom($doc));
+        }
+
         $root->appendChild($debtor);
 
         $debtorAccount = $doc->createElement('DbtrAcct');

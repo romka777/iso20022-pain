@@ -142,9 +142,14 @@ class CustomerCreditTransfer extends AbstractMessage
         $header->appendChild(Text::xml($doc, 'CreDtTm', $this->creationTime->format('Y-m-d\TH:i:sP')));
         $header->appendChild(Text::xml($doc, 'NbOfTxs', $transactionCount));
         $header->appendChild(Text::xml($doc, 'CtrlSum', $transactionSum->format()));
+
+        // Initiating Party
         $initgParty = $doc->createElement('InitgPty');
+        // Initiating Party Name
         $initgParty->appendChild(Text::xml($doc, 'Nm', $this->initiatingParty));
+        // Initiating Party Contact Details
         $initgParty->appendChild($this->buildContactDetails($doc));
+
         $header->appendChild($initgParty);
         $root->appendChild($header);
 

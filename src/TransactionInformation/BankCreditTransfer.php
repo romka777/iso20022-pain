@@ -19,6 +19,13 @@ use Money\Money;
 class BankCreditTransfer extends CreditTransfer
 {
     /**
+     * @var string Payment Type (LocalInstrument)
+     */
+    const LOCALINSTRUMENT_SIP = '10';
+    const LOCALINSTRUMENT_SOP = '30';
+    const LOCALINSTRUMENT_FDP = '40';
+
+    /**
      * @var AccountInterface
      */
     protected $creditorIBAN;
@@ -41,7 +48,7 @@ class BankCreditTransfer extends CreditTransfer
         $endToEndId,
         Money $amount,
         $creditorName,
-        PostalAddressInterface $creditorAddress,
+        PostalAddressInterface $creditorAddress = null,
         AccountInterface $creditorIBAN,
         FinancialInstitutionInterface $creditorAgent
     ) {

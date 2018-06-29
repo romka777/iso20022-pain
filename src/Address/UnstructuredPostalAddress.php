@@ -20,7 +20,11 @@ class UnstructuredPostalAddress implements PostalAddressInterface
     protected $country;
 
     /**
-     * Constructor
+     * Constructor.
+     * Update 7 address lines in total can be added to this format.
+     * The address fields are a lot more deverse than this, and all are
+     * optional, so a new postal address class would be very handy.
+     * See XSD complex type PostalAddress6
      *
      * @param string $addressLine1 Street name and house number
      * @param string $addressLine2 Postcode and town
@@ -28,7 +32,7 @@ class UnstructuredPostalAddress implements PostalAddressInterface
      *
      * @throws \InvalidArgumentException When the address contains invalid characters or is too long.
      */
-    public function __construct($addressLine1 = null, $addressLine2 = null, $country = 'CH')
+    public function __construct($addressLine1 = null, $addressLine2 = null, $country = null)
     {
         $this->addressLines = [];
         if ($addressLine1 !== null) {

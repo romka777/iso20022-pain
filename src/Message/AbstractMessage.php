@@ -68,38 +68,55 @@ abstract class AbstractMessage implements MessageInterface
     }
 
     /**
-     * Returns the name of the software used to create the message
+     * Returns the name of the software used to create the message.
+     * Used to build the Initiating Party Contact Details, and is
+     * disabled for now.
      *
      * @return string
      */
     public function getSoftwareName()
     {
-        return 'Consilience_Iso20022_Pain001';
+        return;
     }
 
     /**
      * Returns the version of the software used to create the message
+     * Used to build the Initiating Party Contact Details, and is
+     * disabled for now.
      *
      * @return string
      */
     public function getSoftwareVersion()
     {
-        return '0.5.0';
+        return;
     }
 
     /**
-     * Creates a DOM element which contains details about the software used to create the message
+     * Creates a DOM element which contains details about the software used
+     * to create the message.
+     * JDJ: this actually looks wrong. It has nothing to do with the software.
+     * It appears more about a means to get in touch with the initiator of the
+     * payment request, which may or may not be the debtor.
+     * Examples invariably involve the account holder title/name/email etc.
+     *
+     * Any combination of these elements are allowed:
+     * NmPrfx, Nm, PhneNb, MobNb, FaxNb, EmailAdr, Othr
      *
      * @param \DOMDocument $doc
      *
-     * @return \DOMElement
+     * @return \DOMElement|null
      */
     protected function buildContactDetails(\DOMDocument $doc)
     {
         $root = $doc->createElement('CtctDtls');
 
-        $root->appendChild(Text::xml($doc, 'Nm', $this->getSoftwareName()));
-        $root->appendChild(Text::xml($doc, 'Othr', $this->getSoftwareVersion()));
+        if ($this->getSoftwareName() !== null) {
+            $root->appendChild(Text::xml($doc, 'Nm', $this->getSoftwareName()));
+        }
+
+        if ($this->getSoftwareVersion() !== null) {
+            $root->appendChild(Text::xml($doc, 'Othr', $this->getSoftwareVersion()));
+        }
 
         return $root;
     }
