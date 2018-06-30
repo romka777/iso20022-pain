@@ -2,7 +2,7 @@
 
 <phpunit colors="true">
     <testsuites>
-        <testsuite name="SwissPayment Test Suite">
+        <testsuite name="ISO20022 pain.001.001.06 Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

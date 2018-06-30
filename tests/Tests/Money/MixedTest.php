@@ -9,7 +9,7 @@ use Consilience\Pain001\Tests\TestCase;
 class MixedTest extends TestCase
 {
     /**
-     * @covers \Consilience\Pain001\Money\Mixed::plus
+     * @covers \Consilience\Pain001\Money\Mixed::add
      */
     public function testPlus()
     {
@@ -22,7 +22,7 @@ class MixedTest extends TestCase
     }
 
     /**
-     * @covers \Consilience\Pain001\Money\Mixed::minus
+     * @covers \Consilience\Pain001\Money\Mixed::subtract
      */
     public function testMinus()
     {
