@@ -36,7 +36,7 @@ class Mixed
     /**
      * @return int
      */
-    final protected function getDecimals()
+    public function getDecimals()
     {
         return $this->decimals;
     }
