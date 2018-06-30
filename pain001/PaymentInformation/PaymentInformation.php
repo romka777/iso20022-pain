@@ -156,7 +156,7 @@ class PaymentInformation
         $sum = new Mixed(0);
 
         foreach ($this->transactions as $transaction) {
-            $sum = $sum->plus($transaction->getAmount());
+            $sum = $sum->add($transaction->getAmount());
         }
 
         return $sum;

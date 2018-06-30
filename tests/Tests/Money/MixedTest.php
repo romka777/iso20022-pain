@@ -14,9 +14,9 @@ class MixedTest extends TestCase
     public function testPlus()
     {
         $sum = new Mixed(0);
-        $sum = $sum->plus(Money::CHF(2456));
-        $sum = $sum->plus(Money::CHF(1000));
-        $sum = $sum->plus(Money::JPY(1200));
+        $sum = $sum->add(Money::CHF(2456));
+        $sum = $sum->add(Money::CHF(1000));
+        $sum = $sum->add(Money::JPY(1200));
 
         $this->assertEquals('1234.56', $sum->format());
     }
@@ -27,9 +27,9 @@ class MixedTest extends TestCase
     public function testMinus()
     {
         $sum = new Mixed(100);
-        $sum = $sum->minus(Money::CHF(5000));
-        $sum = $sum->minus(Money::CHF(99));
-        $sum = $sum->minus(Money::JPY(300));
+        $sum = $sum->subtract(Money::CHF(5000));
+        $sum = $sum->subtract(Money::CHF(99));
+        $sum = $sum->subtract(Money::JPY(300));
 
         $this->assertEquals('-250.99', $sum->format());
     }

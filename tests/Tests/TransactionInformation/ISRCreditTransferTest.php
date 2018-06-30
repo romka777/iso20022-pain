@@ -74,7 +74,7 @@ class ISRCreditTransferTest extends TestCase
         );
 
         $creditorName = 'name';
-        $creditorAddress = new StructuredPostalAddress('foo', '99', '9999', 'bar');
+        $creditorAddress = new StructuredPostalAddress('foo', '99', '9999', 'bar', 'GB');
         $transfer->setCreditorDetails($creditorName, $creditorAddress);
     }
 }

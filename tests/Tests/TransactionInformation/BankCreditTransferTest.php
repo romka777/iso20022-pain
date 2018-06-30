@@ -28,7 +28,7 @@ class BankCreditTransferTest extends TestCase
             'name',
             Money::CHF(100),
             'name',
-            new StructuredPostalAddress('foo', '99', '9999', 'bar'),
+            new StructuredPostalAddress('foo', '99', '9999', 'bar', 'GB'),
             new IBAN('CH31 8123 9000 0012 4568 9'),
             $creditorAgent
         );

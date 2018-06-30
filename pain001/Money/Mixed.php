@@ -25,7 +25,7 @@ class Mixed
      * Constructor
      *
      * @param int $cents    Amount of money in minor units
-     * @param int $decimals Number of minor units
+     * @param int $decimals Number of minor unit digits after the decimal point
      */
     public function __construct($cents, $decimals = 0)
     {
@@ -34,7 +34,7 @@ class Mixed
     }
 
     /**
-     * {@inheritdoc}
+     * @return int
      */
     final protected function getDecimals()
     {
@@ -42,9 +42,9 @@ class Mixed
     }
 
     /**
-     * Returns the amount of money in cents
+     * Returns the amount of money in minor units
      *
-     * @return int The amount in cents
+     * @return int
      */
     public function getAmount()
     {
@@ -52,13 +52,13 @@ class Mixed
     }
 
     /**
-     * Returns the sum of this and an other amount of money
+     * Returns the sum of this and another amount of money
      *
      * @param Mixed|Money $addend The addend
      *
      * @return Mixed The sum
      */
-    public function plus($addend)
+    public function add($addend)
     {
         list($thisCents, $addendCents, $decimals) = self::normalizeDecimals($this, $addend);
 
@@ -68,11 +68,11 @@ class Mixed
     /**
      * Returns the subtraction of this and an other amount of money
      *
-     * @param Mixed|Money  $subtrahend The subtrahend
+     * @param Mixed|Money $subtrahend The subtrahend
      *
      * @return Mixed The difference
      */
-    public function minus($subtrahend)
+    public function subtract($subtrahend)
     {
         list($thisCents, $subtrahendCents, $decimals) = self::normalizeDecimals($this, $subtrahend);
 
@@ -80,20 +80,26 @@ class Mixed
     }
 
     /**
-     * Normalizes two amounts such that they have the same number of decimals
+     * Normalizes two amounts such that they have the same number of decimals.
+     * Do this by increasing the number of decimals of either amount so that
+     * both have the same number of decimals.
      *
      * @param Mixed|Money $a
      * @param Mixed|Money $b
      *
-     * @return array An array containing the two amounts and number of decimals
+     * @return array The two amounts in minor units and shared number of decimals
      */
     protected static function normalizeDecimals($a, $b)
     {
-        $currencies = new ISOCurrencies();
+        if ($a instanceof Money || $b instanceof Money) {
+            $currencies = new ISOCurrencies();
+        }
 
         if ($a instanceof Mixed) {
+            // Mixed has decimals but no currency.
             $aDecimals = $a->getDecimals();
         } elseif ($a instanceof Money) {
+            // Mney has currency, from which the deciamls are derived.
             $aDecimals = $currencies->subunitFor($a->getCurrency());
         } else {
             throw new InvalidArgumentException(sprintf(
@@ -129,9 +135,9 @@ class Mixed
     }
 
     /**
-     * Returns a formatted string (e.g. 15.560)
+     * Returns a string, formatted according to the number of decimals (e.g. 15.560)
      *
-     * @return string The formatted value
+     * @return string
      */
     public function format()
     {

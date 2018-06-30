@@ -69,7 +69,7 @@ class PaymentInformationTest extends TestCase
             'e2e-001',
             Money::CHF(10000), // CHF 100.00
             'Fritz Bischof',
-            new StructuredPostalAddress('Dorfstrasse', '17', '9911', 'Musterwald'),
+            new StructuredPostalAddress('Dorfstrasse', '17', '9911', 'Musterwald', 'GB'),
             new PostalAccount('60-9-9')
         ));
         $payment->addTransaction(new IS1CreditTransfer(
@@ -77,7 +77,7 @@ class PaymentInformationTest extends TestCase
             'e2e-002',
             Money::CHF(30000), // CHF 300.00
             'Franziska Meier',
-            new StructuredPostalAddress('Altstadt', '1a', '4998', 'Muserhausen'),
+            new StructuredPostalAddress('Altstadt', '1a', '4998', 'Muserhausen', 'GB'),
             new PostalAccount('80-151-4')
         ));
 

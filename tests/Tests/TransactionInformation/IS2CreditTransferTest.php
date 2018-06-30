@@ -25,7 +25,7 @@ class IS2CreditTransferTest extends TestCase
             'name',
             Money::USD(100),
             'creditor name',
-            new StructuredPostalAddress('foo', '99', '9999', 'bar'),
+            new StructuredPostalAddress('foo', '99', '9999', 'bar', 'GB'),
             new Iban('AZ21 NABZ 0000 0000 1370 1000 1944'),
             'name',
             new PostalAccount('10-2424-4')

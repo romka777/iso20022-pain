@@ -75,12 +75,13 @@ class SEPAPaymentInformationTest extends TestCase
             new BIC('POFICHBEXXX'),
             new IBAN('CH31 8123 9000 0012 4568 9')
         );
+
         $payment->addTransaction(new BankCreditTransfer(
             'instr-001',
             'e2e-001',
             Money::CHF(130000), // CHF 1300.00
             'Muster Transport AG',
-            new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen'),
+            new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen', 'GB'),
             new IBAN('CH51 0022 5225 9529 1301 C'),
             new BIC('UBSWCHZH80A')
         ));

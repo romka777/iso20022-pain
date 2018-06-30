@@ -42,7 +42,7 @@ class CustomerCreditTransferTest extends TestCase
             'e2e-001',
             Money::CHF(130000), // CHF 1300.00
             'Muster Transport AG',
-            new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen'),
+            new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen', 'GB'),
             new IBAN('CH51 0022 5225 9529 1301 C'),
             new BIC('UBSWCHZH80A')
         );
@@ -52,7 +52,7 @@ class CustomerCreditTransferTest extends TestCase
             'e2e-002',
             Money::CHF(30000), // CHF 300.00
             'Finanzverwaltung Stadt Musterhausen',
-            new StructuredPostalAddress('Altstadt', '1a', '4998', 'Muserhausen'),
+            new StructuredPostalAddress('Altstadt', '1a', '4998', 'Muserhausen', 'GB'),
             new PostalAccount('80-5928-4')
         );
 
@@ -61,7 +61,7 @@ class CustomerCreditTransferTest extends TestCase
             'e2e-003',
             Money::CHF(20000), // CHF 200.00
             'Druckerei Muster GmbH',
-            new StructuredPostalAddress('Gartenstrasse', '61', '3000', 'Bern'),
+            new StructuredPostalAddress('Gartenstrasse', '61', '3000', 'Bern', 'GB'),
             new IBAN('CH03 0900 0000 3054 1118 8'),
             'Musterbank AG',
             new PostalAccount('80-151-4')
@@ -73,7 +73,7 @@ class CustomerCreditTransferTest extends TestCase
             'e2e-004',
             Money::CHF(30000), // CHF 300.00
             'Muster Transport AG',
-            new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen'),
+            new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen', 'GB'),
             $iban4,
             IID::fromIBAN($iban4)
         );
@@ -147,7 +147,7 @@ class CustomerCreditTransferTest extends TestCase
         );
         $transaction11->setCreditorDetails(
             'Fritz Bischof',
-            new StructuredPostalAddress('Dorfstrasse', '17', '9911', 'Musterwald')
+            new StructuredPostalAddress('Dorfstrasse', '17', '9911', 'Musterwald', 'GB')
         );
 
         $transaction12 = new IS1CreditTransfer(
@@ -155,7 +155,7 @@ class CustomerCreditTransferTest extends TestCase
             'e2e-012',
             Money::CHF(50000), // CHF 500.00
             'Meier & Söhne AG',
-            new StructuredPostalAddress('Dorfstrasse', '17', '9911', 'Musterwald'),
+            new StructuredPostalAddress('Dorfstrasse', '17', '9911', 'Musterwald', 'GB'),
             new PostalAccount('60-9-9')
         );
 

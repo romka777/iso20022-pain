@@ -24,7 +24,7 @@ class IS1CreditTransferTest extends TestCase
             'name',
             Money::USD(100),
             'name',
-            new StructuredPostalAddress('foo', '99', '9999', 'bar'),
+            new StructuredPostalAddress('foo', '99', '9999', 'bar', 'GB'),
             new PostalAccount('10-2424-4')
         );
     }

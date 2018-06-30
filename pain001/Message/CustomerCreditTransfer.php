@@ -133,7 +133,7 @@ class CustomerCreditTransfer extends AbstractMessage
         foreach ($this->payments as $payment) {
             // Each payment may contain multiple transactions.
             $transactionCount += $payment->getTransactionCount();
-            $transactionSum = $transactionSum->plus($payment->getTransactionSum());
+            $transactionSum = $transactionSum->add($payment->getTransactionSum());
         }
 
         $root = $doc->createElement('CstmrCdtTrfInitn');
