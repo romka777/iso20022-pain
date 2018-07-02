@@ -2,20 +2,24 @@
 
 namespace Consilience\Pain002\Message;
 
+/**
+ * General pain.002 message
+ */
+
 use Consilience\Pain001\Money\Mixed;
+use Consilience\Pain002\AbastractMessage;
+use Consilience\Pain002\PaymentInformation\OriginalPaymentInformationAndStatus;
 use DOMDocument;
 use DOMXPath;
 use DOMElement;
 use DOMNode;
 use Exception;
 
-/**
- * General pain.002 message
- */
 class StatusReport extends AbastractMessage
 {
     /**
-     * Group Header
+     * Group Header.
+     * Contains details about the pain.002 file itself.
      */
 
     // MsgId e.g. "API0000296844600"
@@ -24,7 +28,8 @@ class StatusReport extends AbastractMessage
     protected $creationDateTime;
 
     /**
-     * Original Group Information And Status
+     * Original Group Information And Status.
+     * Contains data from the original message.
      */
 
     protected $originalMessageId;
@@ -36,22 +41,44 @@ class StatusReport extends AbastractMessage
     protected $groupStatus;
 
     /**
-     * Parse an XML string.
+     * Original Payment Information and Status.
+     * For each rejected batch/PI from the original message, a separate
+     * OriginalPaymentInformationAndStatus is available.
+     */
+
+    protected $originalPaymentInformationAndStatus = [];
+
+    /**
+     * Instantiate from an XML string.
      *
      * @partam string $xml
      * @return self
      */
-    static public function parseXml(string $xml)
+    static public function fromXml(string $xml)
     {
         $dom = new DOMDocument();
         $dom->preserveWhiteSpace = false;
 
+        // An exception will be thrown on a failure to
+        // parse the string as XML.
+
+        $dom->loadXml($xml);
+
+        return static::fromDom($dom);
+    }
+
+    /**
+     * Instantiate from an XML DOM.
+     *
+     * @partam DOMDocument $dom
+     * @return self
+     */
+    static public function fromDom(DOMDocument $dom)
+    {
         $report = new static();
 
         try {
-            $dom->loadXml($xml);
-
-            // Save the dom.
+            // Save the dom in the report.
 
             $report->setDom($dom);
 
@@ -103,12 +130,7 @@ class StatusReport extends AbastractMessage
 
             // Multiple optional Original Payment Information And Status elements.
 
-            $originalPaymentInformationAndStatus = $report->getChildElements(
-                $customerPaymentStatusReport,
-                'OrgnlPmtInfAndSts'
-            );
-
-            dump($report);
+            $report->parseOriginalPaymentInformationAndStatus($customerPaymentStatusReport);
         } catch (Exception $e) {
             return $report->withFailure($e->getMessage());
         }
@@ -181,5 +203,33 @@ class StatusReport extends AbastractMessage
         );
 
         // TODO: multiple optional StatusReasonInformation <StsRsnInf>
+    }
+
+    protected function parseOriginalPaymentInformationAndStatus(DOMNode $customerPaymentStatusReport)
+    {
+        $originalPaymentInformationAndStatusList = $this->getChildElements(
+            $customerPaymentStatusReport,
+            'OrgnlPmtInfAndSts',
+            []
+        );
+
+        // No records supplied.
+
+        if ($originalPaymentInformationAndStatusList->count() === 0) {
+            return;
+        }
+
+        // Parse each record.
+
+        foreach ($originalPaymentInformationAndStatusList as $originalPaymentInformationAndStatus) {
+            // Instantiate then parse.
+
+            $record = OriginalPaymentInformationAndStatus::fromElement(
+                $originalPaymentInformationAndStatus,
+                $this->dom
+            );
+
+            $this->originalPaymentInformationAndStatus[] = $record;
+        }
     }
 }

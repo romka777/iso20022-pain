@@ -1,6 +1,6 @@
 <?php
 
-namespace Consilience\Pain002\Message;
+namespace Consilience\Pain002;
 
 use Consilience\Pain001\Money\Mixed;
 use DOMDocument;
