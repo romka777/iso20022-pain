@@ -77,25 +77,39 @@ class Screening extends AbstractSupplementaryData
         return $this;
     }
 
+    /**
+     * The code and narrative are required only if the fraudCheck is true.
+     */
     public function setFraudCheck(
         bool $fraudCheck,
-        string $fraudCheckCode,
-        string $fraudCheckNarrative
+        string $fraudCheckCode = null,
+        string $fraudCheckNarrative = null
     ) {
         $this->fraudCheck = $fraudCheck;
-        $this->fraudCheckCode = $fraudCheckCode;
-        $this->fraudCheckNarrative = $fraudCheckNarrative;
+
+        if ($fraudCheck) {
+            $this->fraudCheckCode = $fraudCheckCode;
+            $this->fraudCheckNarrative = $fraudCheckNarrative;
+        }
+
         return $this;
     }
 
+    /**
+     * The code and narrative are required only if the manualApprove is true.
+     */
     public function setManualApprove(
         bool $manualApprove,
-        string $manualApproveCode,
-        string $manualApproveNarrative
+        string $manualApproveCode = null,
+        string $manualApproveNarrative = null
     ) {
         $this->manualApprove = $manualApprove;
-        $this->manualApproveCode = $manualApproveCode;
-        $this->manualApproveNarrative = $manualApproveNarrative;
+
+        if ($manualApprove) {
+            $this->manualApproveCode = $manualApproveCode;
+            $this->manualApproveNarrative = $manualApproveNarrative;
+        }
+
         return $this;
     }
 }

@@ -70,6 +70,7 @@ class UnstructuredPostalAddress implements PostalAddressInterface
         $root = $doc->createElement('PstlAdr');
 
         $root->appendChild(Text::xml($doc, 'Ctry', $this->country));
+
         foreach ($this->addressLines as $line) {
             $root->appendChild(Text::xml($doc, 'AdrLine', $line));
         }
