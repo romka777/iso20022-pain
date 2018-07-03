@@ -75,6 +75,10 @@ class FlexiblePostalAddress implements PostalAddressInterface
             if (array_key_exists($name, $this->parts)) {
                 $value = $this->parts[$name];
 
+                if ($value === null) {
+                    continue;
+                }
+
                 if ($name === 'AddressLine') {
                     // Can have multiple address lines.
 
