@@ -7,13 +7,12 @@ use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\FinancialInstitutionInterface;
 
 /**
- * UkBank
- * FIXME: there will be a better name for this object, plus some
+ * GB Clearing
  * mapping of clearing system IDs to countries or banks, and validation
  * of sort codes. A complete "UK bank account" object could be used to
  * derive this, with all the validation built in.
  */
-class UkBank implements FinancialInstitutionInterface
+class GBDSC implements FinancialInstitutionInterface
 {
     const MAX_LENGTH = 10;
     const PATTERN = '/^[0-9]{6,6}$/';

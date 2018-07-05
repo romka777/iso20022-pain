@@ -8,7 +8,7 @@ use Consilience\Pain001\AccountInterface;
 /**
  * UkBank
  */
-class UkBank implements AccountInterface
+class GBBankAccount implements AccountInterface
 {
     const MAX_LENGTH = 10;
     const PATTERN = '/^[0-9]{8,10}$/';

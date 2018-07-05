@@ -8,6 +8,7 @@ use Consilience\Pain001\PostalAddressInterface;
 use Consilience\Pain001\Text;
 use Money\Currencies\ISOCurrencies;
 use Money\Formatter\DecimalMoneyFormatter;
+use Consilience\Pain001\TransactionInformation\PurposeInterface;
 
 /**
  * CreditTransfer contains all the information about the beneficiary and further information about the transaction.
@@ -118,11 +119,11 @@ abstract class CreditTransfer
     /**
      * Sets the purpose of the payment
      *
-     * @param PurposeCode $purpose The purpose
+     * @param PurposeInterface $purpose The purpose
      *
      * @return CreditTransfer This credit transfer
      */
-    public function setPurpose(PurposeCode $purpose)
+    public function setPurpose(PurposeInterface $purpose)
     {
         $this->purpose = $purpose;
 

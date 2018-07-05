@@ -8,10 +8,10 @@ use InvalidArgumentException;
 /**
  * PurposeCode contains a purpose code from the External Code Sets
  */
-class PurposeCode
+class PurposeCode implements PurposeInterface
 {
     /**
-     * @var string
+     * @var string SEPA only
      */
     protected $code;
 
@@ -25,6 +25,7 @@ class PurposeCode
     public function __construct($code)
     {
         $code = (string) $code;
+
         if (!preg_match('/^[A-Z0-9]{4}$/', $code)) {
             throw new InvalidArgumentException('The purpose code is not valid.');
         }
