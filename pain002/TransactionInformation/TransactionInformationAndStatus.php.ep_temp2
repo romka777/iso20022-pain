@@ -35,25 +35,6 @@ class TransactionInformationAndStatus extends AbastractMessage
     protected $clearingSystemProprietary;
     protected $clearingSystemCode;
 
-    /**
-     * @inherit
-     */
-    protected $exportableProperties = [
-        'statusId',
-        'originalInstructionId',
-        'originalEndToEndId',
-        'transactionStatus',
-        'instructedAmount',
-        'instructedCurrency',
-        'requestedCollectionDate',
-        'requestedExecutionDate',
-        'instructionPriority',
-        'interBankSettlementDate',
-        'settlementMethod',
-        'clearingSystemProprietary',
-        'clearingSystemCode',
-    ];
-
     public static function fromElement(DOMNode $element, DOMDocument $dom)
     {
         $record = new static();

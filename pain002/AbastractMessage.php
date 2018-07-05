@@ -8,11 +8,12 @@ use DOMXPath;
 use DOMElement;
 use DOMNode;
 use Exception;
+use JsonSerializable;
 
 /**
  * General pain.002 message
  */
-abstract class AbastractMessage
+abstract class AbastractMessage implements JsonSerializable
 {
     const ASSERT_REQUIRED = 'required';
 
@@ -35,6 +36,38 @@ abstract class AbastractMessage
      * @var DOMXPath
      */
     protected $xpath;
+
+    /**
+     * @var array a list of all property names that can be exported
+     */
+    protected $exportableProperties = [];
+
+    public function jsonSerialize()
+    {
+        $data = [];
+
+        foreach ($this->exportableProperties as $fieldName) {
+            if (property_exists($this, $fieldName) && $this->$fieldName !== null) {
+                $data[$fieldName] = $this->$fieldName;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the contents of a field.
+     * We could protect against missing properties, but we don't at this stage.
+     */
+    public function getField($fieldName)
+    {
+        return $this->$fieldName;
+    }
+
+    public function __get($fieldName)
+    {
+        return $this->getField($fieldName);
+    }
 
     /**
      * @return boolean true if parsing failed for any reason.

@@ -26,6 +26,18 @@ class OriginalPaymentInformationAndStatus extends AbastractMessage
 
     protected $statusReasonInformation = [];
 
+    /**
+     * @inherit
+     */
+    protected $exportableProperties = [
+        'originalPaymentId',
+        'originalNumberOfTransactions',
+        'originalControlSum',
+        'transactionInformationAndStatus',
+        'paymentStatus',
+        'statusReasonInformation',
+    ];
+
     public static function fromElement(DOMNode $element, DOMDocument $dom)
     {
         $record = new static();

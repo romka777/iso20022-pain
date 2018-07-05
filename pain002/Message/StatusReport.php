@@ -49,6 +49,21 @@ class StatusReport extends AbastractMessage
     protected $originalPaymentInformationAndStatus = [];
 
     /**
+     * @inherit
+     */
+    protected $exportableProperties = [
+        'messageId',
+        'creationDateTime',
+        'originalMessageId',
+        'originalMessageNameId',
+        'originalNumberOfTransactions',
+        'originalCreationDateTime',
+        'originalControlSum',
+        'groupStatus',
+        'originalPaymentInformationAndStatus',
+    ];
+
+    /**
      * Instantiate from an XML string.
      *
      * @partam string $xml
@@ -56,42 +71,49 @@ class StatusReport extends AbastractMessage
      */
     static public function fromXml(string $xml)
     {
+        $report = new static();
+        return $report->setXml($xml);
+    }
+
+    protected function setXml(string $xml)
+    {
         $dom = new DOMDocument();
         $dom->preserveWhiteSpace = false;
 
-        // An exception will be thrown on a failure to
-        // parse the string as XML.
-
         $dom->loadXml($xml);
 
-        return static::fromDom($dom);
+        return $this->populateFromDom($dom);
     }
 
     /**
      * Instantiate from an XML DOM.
      *
-     * @partam DOMDocument $dom
+     * @param DOMDocument $dom
      * @return self
      */
     static public function fromDom(DOMDocument $dom)
     {
         $report = new static();
+        return $report->populateFromDom($dom);
+    }
 
+    protected function populateFromDom(DOMDocument $dom)
+    {
         try {
             // Save the dom in the report.
 
-            $report->setDom($dom);
+            $this->setDom($dom);
 
-            $rootNode = $report->xpath->query('/xmlns:Document')->item(0);
+            $rootNode = $this->xpath->query('/xmlns:Document')->item(0);
 
-            $rootNode = $report->getChildElement(
+            $rootNode = $this->getChildElement(
                 $dom,
                 'Document',
                 [static::ASSERT_REQUIRED]
             );
 
             if (!$rootNode) {
-                return $report->withFailure('Missing root xmlns:Document element.');
+                return $this->withFailure('Missing root xmlns:Document element.');
             }
 
             // Single wrapper for the report.
@@ -100,10 +122,10 @@ class StatusReport extends AbastractMessage
             // pain messages.
             // TODO: This section can be moved to a "expect element name" method.
 
-            $rootChildren = $report->getChildElements($rootNode);
+            $rootChildren = $this->getChildElements($rootNode);
 
             if ($rootChildren->count() !== 1) {
-                return $report->withFailure(sprintf(
+                return $this->withFailure(sprintf(
                     'Root element xmlns:Document must contain one element. %d found',
                     $rootChildren->count()
                 ));
@@ -114,7 +136,7 @@ class StatusReport extends AbastractMessage
             // Make sure it is the node we are expecting.
 
             if ($customerPaymentStatusReport->nodeName !== 'CstmrPmtStsRpt') {
-                return $report->withFailure(sprintf(
+                return $this->withFailure(sprintf(
                     'Expected element CstmrPmtStsRpt, but found %s instead',
                     $customerPaymentStatusReport->nodeName
                 ));
@@ -122,20 +144,20 @@ class StatusReport extends AbastractMessage
 
             // A single mandatory group header.
 
-            $report->parseGroupHeader($customerPaymentStatusReport);
+            $this->parseGroupHeader($customerPaymentStatusReport);
 
             // A single mandatory Original Group Information And Status
 
-            $report->parseOriginalGroupInformationAndStatus($customerPaymentStatusReport);
+            $this->parseOriginalGroupInformationAndStatus($customerPaymentStatusReport);
 
             // Multiple optional Original Payment Information And Status elements.
 
-            $report->parseOriginalPaymentInformationAndStatus($customerPaymentStatusReport);
+            $this->parseOriginalPaymentInformationAndStatus($customerPaymentStatusReport);
         } catch (Exception $e) {
-            return $report->withFailure($e->getMessage());
+            return $this->withFailure($e->getMessage());
         }
 
-        return $report;
+        return $this;
     }
 
     protected function parseGroupHeader(DOMNode $customerPaymentStatusReport)

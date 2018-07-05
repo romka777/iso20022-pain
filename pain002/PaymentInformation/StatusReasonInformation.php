@@ -20,6 +20,15 @@ class StatusReasonInformation extends AbastractMessage
     protected $reasonCode;
     protected $reasonProprietary;
 
+    /**
+     * @inherit
+     */
+    protected $exportableProperties = [
+        'additionalInformation',
+        'reasonCode',
+        'reasonProprietary',
+    ];
+
     public static function fromElement(DOMNode $element, DOMDocument $dom)
     {
         $record = new static();
