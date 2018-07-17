@@ -2,34 +2,38 @@
 
 [![Build Status](https://travis-ci.org/consilience/iso20022-pain.svg?branch=master)](https://travis-ci.org/consilience/iso20022-pain)
 
-**Pain.001** is a PHP library to generate UK pain.001.001.06 XML messages (complies with ISO-20022).
+**ISO 20022 Pain** is a PHP library to generate and parse UK pain.001.001.06
+and pain.002.001.06 XML messages (complies with ISO-20022).
 
 ## Installation
 Consilience\Pain001
-Just install [Composer](http://getcomposer.org) and run `composer require consilience/iso20022-pain` in your project directory.
+Just install [Composer](http://getcomposer.org) and run `composer require consilience/iso20022-pain`
+in your project directory.
 
 ## TODO
 
-This library is based on the Swiss PAIN library.
-I am adapting it for UK usage.
-It will support pain.001.001.06 version.
+This library is based on the Swiss PAIN library supporting pain.001.001.03 only.
+This fork is adapted more for UK usage, and 
+supports pain.001.001.06 (i.e. version 06) for our particular use-case.
 Future versions or multiple versions will need a rethink on how this package is structured.
+PRs are welcome to achieving that.
 
 Until the updates are complete, take all these instructions with a pinch of salt;
 they will probably be wrong.
 
 Main changes:
 
-* New root namespace.
 * UK bank financial institution type.
-* Switch to `moneyphp\money` package rather than home-grown.
+* Switch to `moneyphp\money` package to handle meny amounts, rather than home-grown classes.
 * Support for supplementary info records.
-* Switch to version `06` of the pain.001 format.
+* Switch to version `06` of the pain.001/pain.002 format.
 * UK-oriented XML namespaces.
 
 ## Usage
 
-To get a basic understanding on how the messages are structured, take a look [the resources](#further-resources) mentioned below. The following example shows how to create a message containing two transactions:
+To get a basic understanding on how the messages are structured, take a look at
+[the resources](#further-resources) mentioned below.
+The following example shows how to create a message containing two transactions:
 
 ```php
 <?php
@@ -81,7 +85,8 @@ $message->addPayment($payment);
 echo $message->asXml();
 ```
 
-**Tip:** Take a look at `Consilience\Pain001\Tests\Message\CustomerCreditTransferTest` to see all payment types in action.
+**Tip:** Take a look at `Consilience\Pain001\Tests\Message\CustomerCreditTransferTest`
+to see all payment types in action.
 
 ## Caveats
 
