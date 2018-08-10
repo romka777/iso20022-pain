@@ -7,7 +7,8 @@ use Consilience\Pain001\FinancialInstitutionInterface;
 use Consilience\Pain001\PostalAddressInterface;
 use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\Account\IBAN;
-use Consilience\Pain001\Account\UkBank;
+use Consilience\Pain001\Account\GBBankAccount;
+use Consilience\Pain001\FinancialInstitution\GBDSC;
 use Money\Money;
 use Consilience\Pain001\Money\Mixed;
 use Consilience\Pain001\Text;
@@ -76,7 +77,7 @@ class PaymentInformation
     protected $debtorAgent;
 
     /**
-     * @var IBAN
+     * @var AccountInterface
      */
     protected $debtorAccountDetail;
 
@@ -102,11 +103,6 @@ class PaymentInformation
         AccountInterface $debtorAccountDetail,
         PostalAddressInterface $debtorPostalAdress = null
     ) {
-        // Also allows UkBank
-        /*if (!$debtorAgent instanceof BIC && !$debtorAgent instanceof IID) {
-            throw new \InvalidArgumentException('The debtor agent must be an instance of BIC or IID.');
-        }*/
-
         $this->id = Text::assertIdentifier($id);
         $this->transactions = [];
         $this->batchBooking = true;
@@ -327,10 +323,11 @@ class PaymentInformation
             );
         }
 
-        if ($this->debtorAccountDetail instanceof UkBank) {
+        if ($this->debtorAccountDetail instanceof GBBankAccount) {
             $other = $debtorAccountId->appendChild(
                 $doc->createElement('Othr')
             );
+
             $other->appendChild(
                 $doc->createElement('Id', $this->debtorAccountDetail->normalize())
             );
@@ -348,6 +345,7 @@ class PaymentInformation
                 if ($transaction->getLocalInstrument() !== $localInstrument) {
                     throw new \LogicException('You can not set the local instrument on B- and C-level.');
                 }
+
                 if ($transaction->getServiceLevel() !== $serviceLevel) {
                     throw new \LogicException('You can not set the service level on B- and C-level.');
                 }
