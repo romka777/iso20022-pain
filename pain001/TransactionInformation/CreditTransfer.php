@@ -61,6 +61,11 @@ abstract class CreditTransfer
     protected $remittanceInformation;
 
     /**
+     * @var string|null
+     */
+    protected $creditorReference;
+
+    /**
      * Constructor
      *
      * @param string                 $instructionId   Identifier of the instruction (should be unique within the message)
@@ -131,7 +136,7 @@ abstract class CreditTransfer
     }
 
     /**
-     * Sets the unstructured remittance information
+     * Sets the unstructured remittance information.
      *
      * @param string|null $remittanceInformation
      *
@@ -142,6 +147,22 @@ abstract class CreditTransfer
     public function setRemittanceInformation($remittanceInformation)
     {
         $this->remittanceInformation = Text::assertOptional($remittanceInformation, 140);
+
+        return $this;
+    }
+
+    /**
+     * Sets the creditor reference for the structured remittance information.
+     *
+     * @param string|null $creditorReference
+     *
+     * @return CreditTransfer This credit transfer
+     *
+     * @throws \InvalidArgumentException When the information contains invalid characters or is too long.
+     */
+    public function setCreditorReference($creditorReference)
+    {
+        $this->creditorReference = Text::assertOptional($creditorReference, 35);
 
         return $this;
     }
@@ -183,18 +204,21 @@ abstract class CreditTransfer
         $id->appendChild(Text::xml($doc, 'EndToEndId', $this->endToEndId));
         $root->appendChild($id);
 
-        if (!$paymentInformation->hasPaymentTypeInformation() && ($this->localInstrument !== null || $this->serviceLevel !== null)) {
+        if (! $paymentInformation->hasPaymentTypeInformation() && ($this->localInstrument !== null || $this->serviceLevel !== null)) {
             $paymentType = $doc->createElement('PmtTpInf');
+
             if ($this->localInstrument !== null) {
                 $localInstrumentNode = $doc->createElement('LclInstrm');
                 $localInstrumentNode->appendChild($doc->createElement('Prtry', $this->localInstrument));
                 $paymentType->appendChild($localInstrumentNode);
             }
+
             if ($this->serviceLevel !== null) {
                 $serviceLevelNode = $doc->createElement('SvcLvl');
                 $serviceLevelNode->appendChild($doc->createElement('Cd', $this->serviceLevel));
                 $paymentType->appendChild($serviceLevelNode);
             }
+
             $root->appendChild($paymentType);
         }
 
@@ -246,16 +270,42 @@ abstract class CreditTransfer
     }
 
     /**
-     * Appends the remittance information to the transaction
+     * Appends the remittance information to the transaction.
      *
      * @param \DOMDocument $doc
      * @param \DOMElement  $transaction
      */
     protected function appendRemittanceInformation(\DOMDocument $doc, \DOMElement $transaction)
     {
-        if (!empty($this->remittanceInformation)) {
-            $remittanceNode = $doc->createElement('RmtInf');
+        if (empty($this->remittanceInformation) && empty($this->creditorReference)) {
+            return;
+        }
+
+        $remittanceNode = $doc->createElement('RmtInf');
+
+        // Unstructured text remittanceInformation.
+        // In reality this element can be repeated an unbounce number
+        // of times, but that's not supported here.
+
+        if (! empty($this->remittanceInformation)) {
             $remittanceNode->appendChild(Text::xml($doc, 'Ustrd', $this->remittanceInformation));
+            $transaction->appendChild($remittanceNode);
+        }
+
+        // Just one element of the structured remittanceInformation.
+        // This is needed for UK domestic payments at least.
+
+        if (! empty($this->creditorReference)) {
+            $structured = $doc->createElement('Strd');
+            $remittanceNode->appendChild($structured);
+
+            $creditorReferenceInformation = $doc->createElement('CdtrRefInf');
+            $structured->appendChild($creditorReferenceInformation);
+
+            $creditorReferenceInformation->appendChild(
+                $doc->createElement('Ref', $this->creditorReference)
+            );
+
             $transaction->appendChild($remittanceNode);
         }
     }
