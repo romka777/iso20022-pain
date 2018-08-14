@@ -340,10 +340,17 @@ class PaymentInformation
         $debtorAgent->appendChild($this->debtorAgent->asDom($doc));
         $root->appendChild($debtorAgent);
 
+        // FIXME: the $localInstrument here will not even be set if
+        // there is no payment information set further up.
+
         foreach ($this->transactions as $transaction) {
             if ($this->hasPaymentTypeInformation()) {
-                if ($transaction->getLocalInstrument() !== $localInstrument) {
-                    throw new \LogicException('You can not set the local instrument on B- and C-level.');
+                if (! empty($transaction->getLocalInstrument()) && $transaction->getLocalInstrument() !== $localInstrument) {
+                    throw new \LogicException(sprintf(
+                        'You can not set the local instrument (%s) on B- and C-level; conflicts with (%s).',
+                        $localInstrument,
+                        $transaction->getLocalInstrument()
+                    ));
                 }
 
                 if ($transaction->getServiceLevel() !== $serviceLevel) {
@@ -358,7 +365,7 @@ class PaymentInformation
 
     private function inferServiceLevel()
     {
-        if (!count($this->transactions)) {
+        if (! count($this->transactions)) {
             return null;
         }
 
@@ -367,7 +374,7 @@ class PaymentInformation
 
     private function inferLocalInstrument()
     {
-        if (!count($this->transactions)) {
+        if (! count($this->transactions)) {
             return null;
         }
 
