@@ -84,7 +84,7 @@ class PaymentInformation
     /**
      * @var PostalAddressInterface
      */
-    protected $debtorPostalAdress;
+    protected $debtorPostalAddress;
 
     /**
      * Constructor
@@ -101,7 +101,7 @@ class PaymentInformation
         $debtorName,
         FinancialInstitutionInterface $debtorAgent,
         AccountInterface $debtorAccountDetail,
-        PostalAddressInterface $debtorPostalAdress = null
+        PostalAddressInterface $debtorPostalAddress = null
     ) {
         $this->id = Text::assertIdentifier($id);
         $this->transactions = [];
@@ -110,12 +110,14 @@ class PaymentInformation
         // FIXME: This will pick up the local timezone by default.
         // We want to make sure we always get the right day when hovering
         // around midnight.
+        // For now, it is best to always set this date explicitly.
+
         $this->executionDate = new \DateTime();
 
         $this->debtorName = Text::assert($debtorName, 70);
         $this->debtorAgent = $debtorAgent;
         $this->debtorAccountDetail = $debtorAccountDetail;
-        $this->debtorPostalAdress = $debtorPostalAdress;
+        $this->debtorPostalAddress = $debtorPostalAddress;
     }
 
     /**
@@ -300,7 +302,12 @@ class PaymentInformation
             $root->appendChild($paymentType);
         }
 
-        $root->appendChild($doc->createElement('ReqdExctnDt', $this->executionDate->format('Y-m-d')));
+        $root->appendChild(
+            $doc->createElement(
+                'ReqdExctnDt',
+                $this->executionDate->format('Y-m-d')
+            )
+        );
 
         // Debtor name and optional postal address.
 
@@ -308,8 +315,8 @@ class PaymentInformation
         $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
 
         // Include the optional debtor postal address if supplied.
-        if ($this->debtorPostalAdress !== null) {
-            $debtor->appendChild($this->debtorPostalAdress->asDom($doc));
+        if ($this->debtorPostalAddress !== null) {
+            $debtor->appendChild($this->debtorPostalAddress->asDom($doc));
         }
 
         $root->appendChild($debtor);
