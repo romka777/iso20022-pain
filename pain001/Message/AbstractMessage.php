@@ -62,9 +62,16 @@ abstract class AbstractMessage implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function asXml()
+    public function asXml(bool $format = false)
     {
-        return $this->asDom()->saveXML();
+        $dom = $this->asDom();
+
+        if ($format) {
+            $dom->preserveWhiteSpace = false;
+            $dom->formatOutput = true;
+        }
+
+        return $dom->saveXML();
     }
 
     /**

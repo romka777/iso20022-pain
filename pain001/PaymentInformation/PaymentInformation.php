@@ -114,7 +114,10 @@ class PaymentInformation
 
         $this->executionDate = new \DateTime();
 
-        $this->debtorName = Text::assert($debtorName, 70);
+        $this->debtorName = Text::assertOptional(
+            $debtorName !== '' ? $debtorName : null,
+            70
+        );
         $this->debtorAgent = $debtorAgent;
         $this->debtorAccountDetail = $debtorAccountDetail;
         $this->debtorPostalAddress = $debtorPostalAddress;
@@ -178,6 +181,9 @@ class PaymentInformation
     /**
      * Sets the batch booking option.
      * It is recommended that one payment instruction is created for each currency transferred.
+     *
+     * false = Single booking requested
+     * true = Batch booking requested
      *
      * @param bool $batchBooking
      *
@@ -309,17 +315,22 @@ class PaymentInformation
             )
         );
 
-        // Debtor name and optional postal address.
+        // Optional debtor name and postal address.
 
-        $debtor = $doc->createElement('Dbtr');
-        $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
+        if ($this->debtorName !== null || $this->debtorPostalAddress !== null) {
+            $debtor = $doc->createElement('Dbtr');
 
-        // Include the optional debtor postal address if supplied.
-        if ($this->debtorPostalAddress !== null) {
-            $debtor->appendChild($this->debtorPostalAddress->asDom($doc));
+            if ($this->debtorName !== null) {
+                $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
+            }
+
+            // Include the optional debtor postal address if supplied.
+            if ($this->debtorPostalAddress !== null) {
+                $debtor->appendChild($this->debtorPostalAddress->asDom($doc));
+            }
+
+            $root->appendChild($debtor);
         }
-
-        $root->appendChild($debtor);
 
         $debtorAccount = $doc->createElement('DbtrAcct');
         $debtorAccountId = $doc->createElement('Id');

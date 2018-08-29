@@ -64,7 +64,13 @@ class BankCreditTransfer extends CreditTransfer
             throw new InvalidArgumentException('The creditor agent must be an instance of BIC or IID.');
         }*/
 
-        parent::__construct($instructionId, $endToEndId, $amount, $creditorName, $creditorAddress);
+        parent::__construct(
+            $instructionId,
+            $endToEndId,
+            $amount,
+            $creditorName,
+            $creditorAddress
+        );
 
         $this->creditorIBAN = $creditorIBAN;
         $this->creditorAgent = $creditorAgent;

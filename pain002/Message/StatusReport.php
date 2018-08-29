@@ -183,8 +183,9 @@ class StatusReport extends AbastractMessage
         // TODO: InitiatingParty <InitgPty> and internal structures
     }
 
-    public function parseOriginalGroupInformationAndStatus(DOMNode $customerPaymentStatusReport)
-    {
+    public function parseOriginalGroupInformationAndStatus(
+        DOMNode $customerPaymentStatusReport
+    ) {
         $originalGroupInformationAndStatus = $this->getChildElement(
             $customerPaymentStatusReport,
             'OrgnlGrpInfAndSts',
@@ -227,8 +228,9 @@ class StatusReport extends AbastractMessage
         // TODO: multiple optional StatusReasonInformation <StsRsnInf>
     }
 
-    protected function parseOriginalPaymentInformationAndStatus(DOMNode $customerPaymentStatusReport)
-    {
+    protected function parseOriginalPaymentInformationAndStatus(
+        DOMNode $customerPaymentStatusReport
+    ) {
         $originalPaymentInformationAndStatusList = $this->getChildElements(
             $customerPaymentStatusReport,
             'OrgnlPmtInfAndSts',

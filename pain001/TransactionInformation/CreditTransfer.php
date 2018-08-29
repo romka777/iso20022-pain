@@ -86,7 +86,10 @@ abstract class CreditTransfer
         $this->instructionId = Text::assertIdentifier($instructionId);
         $this->endToEndId = Text::assertIdentifier($endToEndId);
         $this->amount = $amount;
-        $this->creditorName = Text::assert($creditorName, 70);
+        $this->creditorName = Text::assertOptional(
+            $creditorName !== '' ? $creditorName : null,
+            70
+        );
         $this->creditorAddress = $creditorAddress;
     }
 
@@ -244,9 +247,15 @@ abstract class CreditTransfer
     protected function buildCreditor(\DOMDocument $doc)
     {
         $creditor = $doc->createElement('Cdtr');
-        $creditor->appendChild(Text::xml($doc, 'Nm', $this->creditorName));
+
+        // The name is optional.
+
+        if ($this->creditorName !== null) {
+            $creditor->appendChild(Text::xml($doc, 'Nm', $this->creditorName));
+        }
 
         // The postal address is optional.
+
         if ($this->creditorAddress !== null) {
             $creditor->appendChild($this->creditorAddress->asDom($doc));
         }
@@ -275,8 +284,10 @@ abstract class CreditTransfer
      * @param \DOMDocument $doc
      * @param \DOMElement  $transaction
      */
-    protected function appendRemittanceInformation(\DOMDocument $doc, \DOMElement $transaction)
-    {
+    protected function appendRemittanceInformation(
+        \DOMDocument $doc,
+        \DOMElement $transaction
+    ) {
         if (empty($this->remittanceInformation) && empty($this->creditorReference)) {
             return;
         }

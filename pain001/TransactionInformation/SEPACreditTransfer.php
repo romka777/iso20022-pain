@@ -39,7 +39,13 @@ class SEPACreditTransfer extends CreditTransfer
         IBAN $creditorIBAN,
         BIC $creditorAgentBIC = null
     ) {
-        parent::__construct($instructionId, $endToEndId, $amount, $creditorName, $creditorAddress);
+        parent::__construct(
+            $instructionId,
+            $endToEndId,
+            $amount,
+            $creditorName,
+            $creditorAddress
+        );
 
         $this->creditorIBAN = $creditorIBAN;
         $this->serviceLevel = 'SEPA';

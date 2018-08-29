@@ -10,7 +10,8 @@ interface MessageInterface
     /**
      * Returns a XML representation of the message
      *
+     * @param bool $format "pretty" format is set true
      * @return string The XML source
      */
-    public function asXml();
+    public function asXml(bool $format = false);
 }
