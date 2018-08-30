@@ -66,6 +66,11 @@ abstract class CreditTransfer
     protected $creditorReference;
 
     /**
+     * @var string|null
+     */
+    protected $regulatoryReportingDetailsInformation;
+
+    /**
      * Constructor
      *
      * @param string                 $instructionId   Identifier of the instruction (should be unique within the message)
@@ -180,6 +185,16 @@ abstract class CreditTransfer
         return $this->amount;
     }
 
+    public function setRegulatoryReportingDetailsInformation($regulatoryReportingDetailsInformation)
+    {
+        $this->regulatoryReportingDetailsInformation = Text::assertOptional(
+            $regulatoryReportingDetailsInformation,
+            35
+        );
+
+        return $this;
+    }
+
     /**
      * Builds a DOM tree of this transaction
      *
@@ -233,6 +248,21 @@ abstract class CreditTransfer
         $instdAmount->setAttribute('Ccy', $this->amount->getCurrency()->getCode());
         $amount->appendChild($instdAmount);
         $root->appendChild($amount);
+
+        // This is a nasty short-cut to put in one Regulatory Reporting
+        // text field.
+
+        if ($this->regulatoryReportingDetailsInformation !== null) {
+            $regulatoryReporting = $doc->createElement('RgltryRptg');
+
+            $details = $doc->createElement('Dtls');
+            $regulatoryReporting->appendChild($details);
+
+            $information = $doc->createElement('Inf', $this->regulatoryReportingDetailsInformation);
+            $details->appendChild($information);
+
+            $root->appendChild($regulatoryReporting);
+        }
 
         return $root;
     }
