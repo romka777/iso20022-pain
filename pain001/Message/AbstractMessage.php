@@ -75,6 +75,14 @@ abstract class AbstractMessage implements MessageInterface
     }
 
     /**
+     * Default cast to string results in XML compact form.
+     */
+    public function __toString()
+    {
+        return $this->asXml();
+    }
+
+    /**
      * Returns the name of the software used to create the message.
      * Used to build the Initiating Party Contact Details, and is
      * disabled for now.
