@@ -4,32 +4,32 @@ namespace Consilience\Pain001\PaymentInformation;
 
 use DOMDocument;
 use InvalidArgumentException;
+use Consilience\Pain001\Text;
 
 /**
  * CategoryPurposeCode contains a category purpose code from the External Code Sets
  */
-class CategoryPurposeCode implements CategoryPurposeInterface
+class CategoryPurposeProprietary implements CategoryPurposeInterface
 {
     /**
      * @var string
      */
-    protected $code;
+    protected $purpose;
 
     /**
      * Constructor
      *
-     * @param string $code
+     * @param string $purpose
      *
      * @throws InvalidArgumentException When the code is not valid
      */
-    public function __construct($code)
+    public function __construct($purpose)
     {
-        $code = (string) $code;
-        if (!preg_match('/^[A-Z]{4}$/', $code)) {
-            throw new InvalidArgumentException('The category purpose code is not valid.');
-        }
+        $purpose = (string) $purpose;
 
-        $this->code = $code;
+        Text::assert($purpose, 35);
+
+        $this->purpose = $purpose;
     }
 
     /**
@@ -41,6 +41,6 @@ class CategoryPurposeCode implements CategoryPurposeInterface
      */
     public function asDom(DOMDocument $doc)
     {
-        return $doc->createElement('Cd', $this->code);
+        return $doc->createElement('Prtry', $this->purpose);
     }
 }

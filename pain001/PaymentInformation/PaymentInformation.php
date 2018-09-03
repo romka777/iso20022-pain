@@ -9,10 +9,10 @@ use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\Account\IBAN;
 use Consilience\Pain001\Account\GBBankAccount;
 use Consilience\Pain001\FinancialInstitution\GBDSC;
-use Money\Money;
 use Consilience\Pain001\Money\Mixed;
 use Consilience\Pain001\Text;
 use Consilience\Pain001\TransactionInformation\CreditTransfer;
+use Money\Money;
 
 /**
  * PaymentInformation contains a group of transactions as well as details about the debtor
@@ -241,11 +241,11 @@ class PaymentInformation
     /**
      * Sets the category purpose
      *
-     * @param CategoryPurposeCode $categoryPurpose The category purpose
+     * @param CategoryPurposeInterface $categoryPurpose The category purpose
      *
      * @return PaymentInformation This payment instruction
      */
-    public function setCategoryPurpose(CategoryPurposeCode $categoryPurpose)
+    public function setCategoryPurpose(CategoryPurposeInterface $categoryPurpose)
     {
         $this->categoryPurpose = $categoryPurpose;
 

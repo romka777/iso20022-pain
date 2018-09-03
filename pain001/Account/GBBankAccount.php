@@ -19,6 +19,11 @@ class GBBankAccount implements AccountInterface
     protected $accountNumber;
 
     /**
+     * @var string
+     */
+    protected $accountTypeCodeProprietary;
+
+    /**
      * Constructor
      *
      * @param string $accountNumber
@@ -38,6 +43,11 @@ class GBBankAccount implements AccountInterface
         }
 
         $this->accountNumber = $cleanedAccountNumber;
+    }
+
+    public function setAccountTypeCodeProprietary(string $accountTypeCodeProprietary)
+    {
+        $this->accountTypeCodeProprietary = $accountTypeCodeProprietary;
     }
 
     /**
@@ -92,6 +102,17 @@ class GBBankAccount implements AccountInterface
         $other = $xml->appendChild($doc->createElement('Othr'));
 
         $other->appendChild($doc->createElement('Id', $this->normalize()));
+
+        // Bit of a cheat, as we only use the proprietary version, not the "Cd".
+
+        if ($this->accountTypeCodeProprietary !== null) {
+            $tp = $doc->createElement('Tp');
+            $proprietary = $doc->createElement('Prtry', $this->accountTypeCodeProprietary);
+
+            $tp->appendChild($proprietary);
+
+            $xml->appendChild($tp);
+        }
 
         return $xml;
     }

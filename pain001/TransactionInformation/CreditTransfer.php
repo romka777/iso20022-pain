@@ -9,6 +9,7 @@ use Consilience\Pain001\Text;
 use Money\Currencies\ISOCurrencies;
 use Money\Formatter\DecimalMoneyFormatter;
 use Consilience\Pain001\TransactionInformation\PurposeInterface;
+use Consilience\Pain001\PaymentInformation\CategoryPurposeInterface;
 
 /**
  * CreditTransfer contains all the information about the beneficiary and further information about the transaction.
@@ -54,6 +55,11 @@ abstract class CreditTransfer
      * @var PurposeCode|null
      */
     protected $purpose;
+
+    /**
+     * @var CategoryPurposeInterface|null
+     */
+    protected $categoryPurpose;
 
     /**
      * @var string|null
@@ -143,6 +149,13 @@ abstract class CreditTransfer
         return $this;
     }
 
+    public function setCategoryPurpose(CategoryPurposeInterface $categoryPurpose)
+    {
+        $this->categoryPurpose = $categoryPurpose;
+
+        return $this;
+    }
+
     /**
      * Sets the unstructured remittance information.
      *
@@ -185,8 +198,9 @@ abstract class CreditTransfer
         return $this->amount;
     }
 
-    public function setRegulatoryReportingDetailsInformation($regulatoryReportingDetailsInformation)
-    {
+    public function setRegulatoryReportingDetailsInformation(
+        $regulatoryReportingDetailsInformation
+    ) {
         $this->regulatoryReportingDetailsInformation = Text::assertOptional(
             $regulatoryReportingDetailsInformation,
             35
@@ -203,7 +217,10 @@ abstract class CreditTransfer
      *
      * @return \DOMElement The built DOM tree
      */
-    abstract public function asDom(\DOMDocument $doc, PaymentInformation $paymentInformation);
+    abstract public function asDom(
+        \DOMDocument $doc,
+        PaymentInformation $paymentInformation
+    );
 
     /**
      * Builds a DOM tree of this transaction and adds header nodes
@@ -222,22 +239,34 @@ abstract class CreditTransfer
         $id->appendChild(Text::xml($doc, 'EndToEndId', $this->endToEndId));
         $root->appendChild($id);
 
-        if (! $paymentInformation->hasPaymentTypeInformation() && ($this->localInstrument !== null || $this->serviceLevel !== null)) {
-            $paymentType = $doc->createElement('PmtTpInf');
+        if (
+            (! $paymentInformation->hasPaymentTypeInformation()
+            && ($this->localInstrument !== null || $this->serviceLevel !== null))
+            || $this->categoryPurpose !== null
+        ) {
+            $paymentTypeInfo = $doc->createElement('PmtTpInf');
 
             if ($this->localInstrument !== null) {
                 $localInstrumentNode = $doc->createElement('LclInstrm');
                 $localInstrumentNode->appendChild($doc->createElement('Prtry', $this->localInstrument));
-                $paymentType->appendChild($localInstrumentNode);
+                $paymentTypeInfo->appendChild($localInstrumentNode);
             }
 
             if ($this->serviceLevel !== null) {
                 $serviceLevelNode = $doc->createElement('SvcLvl');
                 $serviceLevelNode->appendChild($doc->createElement('Cd', $this->serviceLevel));
-                $paymentType->appendChild($serviceLevelNode);
+                $paymentTypeInfo->appendChild($serviceLevelNode);
             }
 
-            $root->appendChild($paymentType);
+            // Append the optional Category Purpose
+
+            if ($this->categoryPurpose !== null) {
+                $categoryPurposeNode = $doc->createElement('CtgyPurp');
+                $categoryPurposeNode->appendChild($this->categoryPurpose->asDom($doc));
+                $paymentTypeInfo->appendChild($categoryPurposeNode);
+            }
+
+            $root->appendChild($paymentTypeInfo);
         }
 
         $currencies = new ISOCurrencies();
