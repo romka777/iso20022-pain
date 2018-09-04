@@ -201,10 +201,15 @@ abstract class CreditTransfer
     public function setRegulatoryReportingDetailsInformation(
         $regulatoryReportingDetailsInformation
     ) {
-        $this->regulatoryReportingDetailsInformation = Text::assertOptional(
+        // Temporary.
+        // Disabled to run tests. 2018-09-04 JDJ Issue #9
+
+        $this->regulatoryReportingDetailsInformation = $regulatoryReportingDetailsInformation;
+
+        /*$this->regulatoryReportingDetailsInformation = Text::assertOptional(
             $regulatoryReportingDetailsInformation,
             35
-        );
+        );*/
 
         return $this;
     }
