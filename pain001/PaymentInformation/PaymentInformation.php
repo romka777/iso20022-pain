@@ -25,13 +25,6 @@ class PaymentInformation
     const PAYMENT_METHOD_TRANSFERADVICE = 'TRF';
 
     /**
-     * @var string Payment Type (LocalInstrument)
-     */
-    const LOCALINSTRUMENT_SIP = '10';
-    const LOCALINSTRUMENT_SOP = '30';
-    const LOCALINSTRUMENT_FDP = '40';
-
-    /**
      * @var string
      */
     protected $id;
@@ -203,7 +196,11 @@ class PaymentInformation
      */
     public function hasPaymentTypeInformation()
     {
-        return ($this->localInstrument !== null || $this->serviceLevel !== null || $this->categoryPurpose !== null);
+        return (
+            $this->localInstrument !== null
+            || $this->serviceLevel !== null
+            || $this->categoryPurpose !== null
+        );
     }
 
     /**
@@ -238,6 +235,12 @@ class PaymentInformation
         return $this->serviceLevel;
     }
 
+    public function setServiceLevel(ServiceLevelInterface $value)
+    {
+        $this->serviceLevel = $value;
+        return $this;
+    }
+
     /**
      * Sets the category purpose
      *
@@ -248,7 +251,6 @@ class PaymentInformation
     public function setCategoryPurpose(CategoryPurposeInterface $categoryPurpose)
     {
         $this->categoryPurpose = $categoryPurpose;
-
         return $this;
     }
 
@@ -295,7 +297,8 @@ class PaymentInformation
 
             if ($serviceLevel !== null) {
                 $serviceLevelNode = $doc->createElement('SvcLvl');
-                $serviceLevelNode->appendChild($doc->createElement('Cd', $serviceLevel));
+                //$serviceLevelNode->appendChild($doc->createElement('Cd', $serviceLevel));
+                $serviceLevelNode->appendChild($serviceLevel->asDom($doc));
                 $paymentType->appendChild($serviceLevelNode);
             }
 
@@ -371,7 +374,9 @@ class PaymentInformation
                     ));
                 }
 
-                if ($transaction->getServiceLevel() !== $serviceLevel) {
+                $transactionServiceLevel = $transaction->getServiceLevel();
+
+                if ($transactionServiceLevel !== null && $transactionServiceLevel !== $serviceLevel) {
                     throw new \LogicException('You can not set the service level on B- and C-level.');
                 }
             }

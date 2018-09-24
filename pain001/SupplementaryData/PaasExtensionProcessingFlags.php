@@ -2,10 +2,8 @@
 
 namespace Consilience\Pain001\SupplementaryData;
 
-class Screening extends AbstractSupplementaryData
+class PaasExtensionProcessingFlags implements ExtensionInterface
 {
-    protected $plcAndNm = 'CstmrCdtTrfInitn/GrpHdr';
-
     protected $screening = false;
 
     protected $fraudCheck = false;
@@ -19,7 +17,7 @@ class Screening extends AbstractSupplementaryData
     /**
      * Build the supplementary data envelope content.
      */
-    public function buildEnvelope(\DOMDocument $doc) : \DOMElement
+    public function asDom(\DOMDocument $doc) : \DOMElement
     {
         // CHECMME: the namespace should ideally be added to the document
         // root rather than to the extension here.
