@@ -3,6 +3,7 @@
 namespace Consilience\Pain001\Message;
 
 use Consilience\Pain001\Money;
+use Consilience\Pain001\Organisation\PartyInterface;
 use Consilience\Pain001\PaymentInformation\PaymentInformation;
 use Consilience\Pain001\Text;
 use Consilience\Pain001\SupplementaryDataInterface;
@@ -18,7 +19,7 @@ class CustomerCreditTransfer extends AbstractMessage
     protected $id;
 
     /**
-     * @var string
+     * @var PartyInterface
      */
     protected $initiatingParty;
 
@@ -41,14 +42,14 @@ class CustomerCreditTransfer extends AbstractMessage
      * Constructor
      *
      * @param string $id Identifier of the message (should usually be unique over a period of at least 90 days)
-     * @param string $initiatingParty Name of the initiating party
+     * @param PartyInterface $initiatingParty Name of the initiating party
      *
      * @throws \InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $initiatingParty)
+    public function __construct($id, PartyInterface $initiatingParty)
     {
-        $this->id = Text::assertIdentifier($id);
-        $this->initiatingParty = Text::assert($initiatingParty, 70);
+        $this->id = $id;
+        $this->initiatingParty = $initiatingParty;
         $this->creationTime = new \DateTime();
     }
 
@@ -144,13 +145,7 @@ class CustomerCreditTransfer extends AbstractMessage
         $header->appendChild(Text::xml($doc, 'CtrlSum', $transactionSum->format()));
 
         // Initiating Party
-        $initgParty = $doc->createElement('InitgPty');
-        // Initiating Party Name
-        $initgParty->appendChild(Text::xml($doc, 'Nm', $this->initiatingParty));
-        // Initiating Party Contact Details
-        $initgParty->appendChild($this->buildContactDetails($doc));
-
-        $header->appendChild($initgParty);
+        $header->appendChild($this->initiatingParty->asDom($doc));
         $root->appendChild($header);
 
         foreach ($this->payments as $payment) {

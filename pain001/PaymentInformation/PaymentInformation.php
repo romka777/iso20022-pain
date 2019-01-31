@@ -96,9 +96,9 @@ class PaymentInformation
         AccountInterface $debtorAccountDetail,
         PostalAddressInterface $debtorPostalAddress = null
     ) {
-        $this->id = Text::assertIdentifier($id);
+        $this->id = $id;
         $this->transactions = [];
-        $this->batchBooking = true;
+//        $this->batchBooking = true;
 
         // FIXME: This will pick up the local timezone by default.
         // We want to make sure we always get the right day when hovering
@@ -276,10 +276,12 @@ class PaymentInformation
             static::PAYMENT_METHOD_TRANSFERADVICE
         ));
 
-        $root->appendChild($doc->createElement(
-            'BtchBookg',
-            ($this->batchBooking ? 'true' : 'false')
-        ));
+        if ($this->batchBooking !== null) {
+            $root->appendChild($doc->createElement(
+                'BtchBookg',
+                ($this->batchBooking ? 'true' : 'false')
+            ));
+        }
 
         // Payment Type: 10=SIP 30=SOP 40=FDP
 

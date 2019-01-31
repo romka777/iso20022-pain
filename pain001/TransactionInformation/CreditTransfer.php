@@ -324,6 +324,11 @@ abstract class CreditTransfer
             $creditor->appendChild($this->creditorAddress->asDom($doc));
         }
 
+        // Creditor Identification
+        if ($this->creditorId) {
+            $creditor->appendChild($this->creditorId->asDom($doc));
+        }
+
         return $creditor;
     }
 
