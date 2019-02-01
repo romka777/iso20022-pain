@@ -4,6 +4,7 @@ namespace Consilience\Pain001\PaymentInformation;
 
 use Consilience\Pain001\FinancialInstitution\BIC;
 use Consilience\Pain001\FinancialInstitutionInterface;
+use Consilience\Pain001\Organisation\DebitorIdentification;
 use Consilience\Pain001\PostalAddressInterface;
 use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\Account\IBAN;
@@ -60,12 +61,12 @@ class PaymentInformation
     protected $executionDate;
 
     /**
-     * @var string
+     * @var DebitorIdentification
      */
-    protected $debtorName;
+    protected $debitorIdentification;
 
     /**
-     * @var \Consilience\Pain001\FinancialInstitution\FinancialInstitutionInterface
+     * @var FinancialInstitutionInterface
      */
     protected $debtorAgent;
 
@@ -83,7 +84,7 @@ class PaymentInformation
      * Constructor
      *
      * @param string  $id          Identifier of this group (should be unique within a message)
-     * @param string  $debtorName  Name of the debtor
+     * @param DebitorIdentification  $debitorIdentification  Debitor
      * @param FinancialInstitutionInterface $debtorAgent BIC or IID of the debtor's financial institution
      * @param AccountInterface $debtorIBAN  IBAN of the debtor's account
      *
@@ -91,7 +92,7 @@ class PaymentInformation
      */
     public function __construct(
         $id,
-        $debtorName,
+        DebitorIdentification $debitorIdentification,
         FinancialInstitutionInterface $debtorAgent,
         AccountInterface $debtorAccountDetail,
         PostalAddressInterface $debtorPostalAddress = null
@@ -107,10 +108,7 @@ class PaymentInformation
 
         $this->executionDate = new \DateTime();
 
-        $this->debtorName = Text::assertOptional(
-            $debtorName !== '' ? $debtorName : null,
-            70
-        );
+        $this->debitorIdentification = $debitorIdentification;
         $this->debtorAgent = $debtorAgent;
         $this->debtorAccountDetail = $debtorAccountDetail;
         $this->debtorPostalAddress = $debtorPostalAddress;
@@ -320,22 +318,7 @@ class PaymentInformation
             )
         );
 
-        // Optional debtor name and postal address.
-
-        if ($this->debtorName !== null || $this->debtorPostalAddress !== null) {
-            $debtor = $doc->createElement('Dbtr');
-
-            if ($this->debtorName !== null) {
-                $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
-            }
-
-            // Include the optional debtor postal address if supplied.
-            if ($this->debtorPostalAddress !== null) {
-                $debtor->appendChild($this->debtorPostalAddress->asDom($doc));
-            }
-
-            $root->appendChild($debtor);
-        }
+        $root->appendChild($this->debitorIdentification->asDom($doc));
 
         $debtorAccount = $doc->createElement('DbtrAcct');
         $debtorAccountId = $doc->createElement('Id');

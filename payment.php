@@ -22,6 +22,8 @@ use Consilience\Pain001\Address\UnstructuredPostalAddress;
 use Consilience\Pain001\Account\GeneralAccount;
 use Consilience\Pain001\Organisation\InitPartyIdentification;
 use Consilience\Pain001\Organisation\OrganisationIdentificationOthr;
+use Consilience\Pain001\Organisation\DebitorIdentification;
+use Consilience\Pain001\Account\DebitorAccount;
 
 //$transaction1 = new BankCreditTransfer(
 //    '7730189312_pain_PKG_20180521_00003',   // Уникальный id ВП CdtTrfTxInf.PmtId.InstrId
@@ -36,9 +38,9 @@ use Consilience\Pain001\Organisation\OrganisationIdentificationOthr;
 
 $payment = new PaymentInformation(
     '7730189312_pain_PKG_20180521_00003',
-    'InnoMuster AG',
+    new DebitorIdentification('ООО "Мир технологий"', null, new OrganisationIdentificationOthr('7730189312', 'TXID')),
     new BIC('ZKBKCHZZ80A'),
-    new IBAN('CH6600700110000204481')
+    new DebitorAccount('RUB', new OrganisationIdentificationOthr('7730189312', 'TXID'))
 );
 //$payment->addTransaction($transaction1);
 
