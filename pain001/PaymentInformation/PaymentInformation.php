@@ -19,6 +19,9 @@ use Money\Money;
  */
 class PaymentInformation
 {
+    protected const PRIORITY_NORM = 'NORM';
+    protected const PRIORITY_HIGH = 'HIGH';
+
     /**
      * @var string Payment Method (TransferAdvice)
      */
@@ -78,6 +81,11 @@ class PaymentInformation
      * @var PostalAddressInterface
      */
     protected $debtorPostalAddress;
+
+    /**
+     * @var string
+     */
+    protected $priority = self::PRIORITY_NORM;
 
     /**
      * Constructor
@@ -200,6 +208,7 @@ class PaymentInformation
             $this->localInstrument !== null
             || $this->serviceLevel !== null
             || $this->categoryPurpose !== null
+            || $this->priority !== null
         );
     }
 
@@ -252,6 +261,32 @@ class PaymentInformation
     {
         $this->categoryPurpose = $categoryPurpose;
         return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setNormPriority()
+    {
+        $this->priority = self::PRIORITY_NORM;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setHighPriority()
+    {
+        $this->priority = self::PRIORITY_HIGH;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPriority()
+    {
+        return $this->priority;
     }
 
     /**
@@ -308,7 +343,13 @@ class PaymentInformation
                 $paymentType->appendChild($categoryPurposeNode);
             }
 
-            $root->appendChild($paymentType);
+            if ($this->priority !== null) {
+                $priority = $doc->createElement('InstrPrty', $this->priority);
+                $paymentType->appendChild($priority);
+            }
+
+
+                $root->appendChild($paymentType);
         }
 
         $root->appendChild(

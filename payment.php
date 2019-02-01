@@ -45,14 +45,15 @@ $payment = new PaymentInformation(
     new BIC('ZKBKCHZZ80A'),
     new IBAN('CH6600700110000204481')
 );
-$payment->addTransaction($transaction1);
-$payment->addTransaction($transaction2);
+$payment->setServiceLevel(new \Consilience\Pain001\PaymentInformation\ServiceLevelCode('NURG'));
+//$payment->addTransaction($transaction1);
+//$payment->addTransaction($transaction2);
 
 $message = new CustomerCreditTransfer(
     'message-001',
     'InnoMuster AG 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
     new Inn('7730189312')
 );
-//$message->addPayment($payment);
+$message->addPayment($payment);
 
 echo $message->asXml(true);
