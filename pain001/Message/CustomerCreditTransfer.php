@@ -3,6 +3,7 @@
 namespace Consilience\Pain001\Message;
 
 use Consilience\Pain001\Money;
+use Consilience\Pain001\OrganisationIdentificationInterface;
 use Consilience\Pain001\PaymentInformation\PaymentInformation;
 use Consilience\Pain001\Text;
 use Consilience\Pain001\SupplementaryDataInterface;
@@ -20,7 +21,13 @@ class CustomerCreditTransfer extends AbstractMessage
     /**
      * @var string
      */
-    protected $initiatingParty;
+    protected $initiatingPartyName;
+    /**
+     * @var string
+     */
+    protected $initiatingPartyName2;
+
+    protected $initiatingPartyId;
 
     /**
      * @var array
@@ -41,14 +48,23 @@ class CustomerCreditTransfer extends AbstractMessage
      * Constructor
      *
      * @param string $id Identifier of the message (should usually be unique over a period of at least 90 days)
-     * @param string $initiatingParty Name of the initiating party
+     * @param string $initiatingPartyName Name of the initiating party
+     * @param OrganisationIdentificationInterface $initiatingPartyId Id of the initiating party
      *
      * @throws \InvalidArgumentException When any of the inputs contain invalid characters or are too long.
+     * @throws \Exception
      */
-    public function __construct($id, $initiatingParty)
+    public function __construct($id, $initiatingPartyName, OrganisationIdentificationInterface $initiatingPartyId)
     {
         $this->id = Text::assertIdentifier($id);
-        $this->initiatingParty = Text::assert($initiatingParty, 70);
+        if (mb_strlen($initiatingPartyName, 'UTF-8') < 70) {
+            $this->initiatingPartyName = Text::assert($initiatingPartyName, 70);
+        } else {
+            $this->initiatingPartyName = Text::assertPattern(mb_substr($initiatingPartyName, 0, 70, 'UTF-8'));
+            $this->initiatingPartyName2 = Text::assertPattern(mb_substr($initiatingPartyName, 70, null, 'UTF-8'));
+        }
+
+        $this->initiatingPartyId = $initiatingPartyId;
         $this->creationTime = new \DateTime();
     }
 
@@ -146,7 +162,16 @@ class CustomerCreditTransfer extends AbstractMessage
         // Initiating Party
         $initgParty = $doc->createElement('InitgPty');
         // Initiating Party Name
-        $initgParty->appendChild(Text::xml($doc, 'Nm', $this->initiatingParty));
+        $initgParty->appendChild(Text::xml($doc, 'Nm', $this->initiatingPartyName));
+        if ($this->initiatingPartyName2 !== null) {
+            $ctctDtls = $initgParty->appendChild($doc->createElement('CtctDtls'));
+            $ctctDtls->appendChild(Text::xml($doc, 'Nm', $this->initiatingPartyName2));
+
+        }
+        // Initiating Party Id Details
+        $initgParty->appendChild($this->initiatingPartyId->asDom($doc));
+
+
         // Initiating Party Contact Details
         $initgParty->appendChild($this->buildContactDetails($doc));
 

@@ -101,6 +101,15 @@ class Text
         return $input;
     }
 
+    public static function assertPattern($input)
+    {
+        if (preg_match(self::TEXT_NON_CH, $input)) {
+            throw new InvalidArgumentException('The string contains invalid characters.');
+        }
+
+        return $input;
+    }
+
     /**
      * @internal
      */
@@ -110,5 +119,16 @@ class Text
         $element->appendChild($doc->createTextNode($content));
 
         return $element;
+    }
+
+    public static function assertLengths($input, array $lengths)
+    {
+        $inputLen = mb_strlen($input, 'UTF-8');
+        foreach($lengths as $len) {
+            if ($len === $inputLen) {
+                return $input;
+            }
+        }
+        throw new InvalidArgumentException(sprintf('The strings lenght must be in: [%s].', implode(', ',$lengths)));
     }
 }
