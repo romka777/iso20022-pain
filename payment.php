@@ -19,6 +19,9 @@ use Consilience\Pain001\TransactionInformation\BankCreditTransfer;
 use Consilience\Pain001\TransactionInformation\IS1CreditTransfer;
 use Consilience\Pain001\Address\UnstructuredPostalAddress;
 use Consilience\Pain001\OrganisationIdentification\Inn;
+use Consilience\Pain001\Account\GeneralAccount;
+use Consilience\Pain001\FinancialInstitution\RUBIC;
+use Consilience\Pain001\Account\BBAN;
 
 $transaction1 = new BankCreditTransfer(
     'instr-001',
@@ -41,9 +44,13 @@ $transaction2 = new IS1CreditTransfer(
 
 $payment = new PaymentInformation(
     'payment-001',
-    'InnoMuster AG',
-    new BIC('ZKBKCHZZ80A'),
-    new IBAN('CH6600700110000204481')
+    'InnoMuster AG 1111111111111111111111111111111111111111111111111133111551111111111111111111111111111111111111',
+    new Inn('7730189312'),
+    new RUBIC('123456789', 'АО "АЛЬФА-БАНК" Г МОСКВА', new UnstructuredPostalAddress(null, null, 'RU')),
+    new GeneralAccount('40702810901300013927'),
+    new BBAN('40702810901300013927'),
+    'RUB',
+    new UnstructuredPostalAddress(null, null, 'RU')
 );
 $payment->setServiceLevel(new \Consilience\Pain001\PaymentInformation\ServiceLevelCode('NURG'));
 //$payment->addTransaction($transaction1);

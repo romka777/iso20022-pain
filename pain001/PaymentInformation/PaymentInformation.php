@@ -2,8 +2,10 @@
 
 namespace Consilience\Pain001\PaymentInformation;
 
+use Consilience\Pain001\Account\GeneralAccount;
 use Consilience\Pain001\FinancialInstitution\BIC;
 use Consilience\Pain001\FinancialInstitutionInterface;
+use Consilience\Pain001\OrganisationIdentificationInterface;
 use Consilience\Pain001\PostalAddressInterface;
 use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\Account\IBAN;
@@ -68,14 +70,34 @@ class PaymentInformation
     protected $debtorName;
 
     /**
-     * @var \Consilience\Pain001\FinancialInstitution\FinancialInstitutionInterface
+     * @var string
+     */
+    protected $debtorNameExt;
+
+    /**
+     * @var OrganisationIdentificationInterface
+     */
+    protected $debtorid;
+
+    /**
+     * @var FinancialInstitutionInterface
      */
     protected $debtorAgent;
 
     /**
      * @var AccountInterface
      */
+    protected $debtorAgentAccountDetail;
+
+    /**
+     * @var AccountInterface
+     */
     protected $debtorAccountDetail;
+
+    /**
+     * @var string
+     */
+    protected $debtorAccountCurreny;
 
     /**
      * @var PostalAddressInterface
@@ -92,16 +114,24 @@ class PaymentInformation
      *
      * @param string  $id          Identifier of this group (should be unique within a message)
      * @param string  $debtorName  Name of the debtor
+     * @param OrganisationIdentificationInterface  $debtorId  Id of the debtor
      * @param FinancialInstitutionInterface $debtorAgent BIC or IID of the debtor's financial institution
-     * @param AccountInterface $debtorIBAN  IBAN of the debtor's account
+     * @param AccountInterface $debtorAgentAccountDetail
+     * @param AccountInterface $debtorAccountDetail
+     * @param string $debtorAccountCurrency  Debtor's account currency
+     * @param PostalAddressInterface $debtorPostalAddress  debtor's postal address
      *
      * @throws \InvalidArgumentException When any of the inputs contain invalid characters or are too long.
+     * @throws \Exception
      */
     public function __construct(
         $id,
         $debtorName,
+        OrganisationIdentificationInterface $debtorId,
         FinancialInstitutionInterface $debtorAgent,
+        AccountInterface $debtorAgentAccountDetail,
         AccountInterface $debtorAccountDetail,
+        $debtorAccountCurrency = null,
         PostalAddressInterface $debtorPostalAddress = null
     ) {
         $this->id = Text::assertIdentifier($id);
@@ -115,12 +145,18 @@ class PaymentInformation
 
         $this->executionDate = new \DateTime();
 
-        $this->debtorName = Text::assertOptional(
-            $debtorName !== '' ? $debtorName : null,
-            70
-        );
+        if (mb_strlen($debtorName, 'UTF-8') <= 70) {
+            $this->debtorName = Text::assert($debtorName, 70);
+        } else {
+            $this->debtorName = Text::assertPattern(mb_substr($debtorName, 0, 70, 'UTF-8'));
+            $this->debtorNameExt = Text::assertPattern(mb_substr($debtorName, 70, null, 'UTF-8'));
+        }
+
+        $this->debtorid = $debtorId;
         $this->debtorAgent = $debtorAgent;
+        $this->debtorAgentAccountDetail = $debtorAgentAccountDetail;
         $this->debtorAccountDetail = $debtorAccountDetail;
+        $this->debtorAccountCurreny = Text::assertOptional($debtorAccountCurrency, 3);
         $this->debtorPostalAddress = $debtorPostalAddress;
     }
 
@@ -359,23 +395,27 @@ class PaymentInformation
             )
         );
 
-        // Optional debtor name and postal address.
+        // Debtor name and postal address.
+        $debtor = $doc->createElement('Dbtr');
 
-        if ($this->debtorName !== null || $this->debtorPostalAddress !== null) {
-            $debtor = $doc->createElement('Dbtr');
+        $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
 
-            if ($this->debtorName !== null) {
-                $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
-            }
-
-            // Include the optional debtor postal address if supplied.
-            if ($this->debtorPostalAddress !== null) {
-                $debtor->appendChild($this->debtorPostalAddress->asDom($doc));
-            }
-
-            $root->appendChild($debtor);
+        if ($this->debtorNameExt !== null) {
+            $ctctDtls = $debtor->appendChild($doc->createElement('CtctDtls'));
+            $ctctDtls->appendChild(Text::xml($doc, 'Nm', $this->debtorNameExt));
         }
 
+        // Include the optional debtor postal address if supplied.
+        if ($this->debtorPostalAddress !== null) {
+            $debtor->appendChild($this->debtorPostalAddress->asDom($doc));
+        }
+
+        // Debtor Id Details
+        $debtor->appendChild($this->debtorid->asDom($doc));
+
+        $root->appendChild($debtor);
+
+        // Debtor account
         $debtorAccount = $doc->createElement('DbtrAcct');
         $debtorAccountId = $doc->createElement('Id');
 
@@ -383,9 +423,7 @@ class PaymentInformation
             $debtorAccountId->appendChild(
                 $doc->createElement('IBAN', $this->debtorAccountDetail->normalize())
             );
-        }
-
-        if ($this->debtorAccountDetail instanceof GBBankAccount) {
+        } elseif ($this->debtorAccountDetail instanceof GBBankAccount) {
             $other = $debtorAccountId->appendChild(
                 $doc->createElement('Othr')
             );
@@ -393,14 +431,28 @@ class PaymentInformation
             $other->appendChild(
                 $doc->createElement('Id', $this->debtorAccountDetail->normalize())
             );
+        } else {
+            $debtorAccountId = $this->debtorAccountDetail->asDom($doc);
         }
 
         $debtorAccount->appendChild($debtorAccountId);
+
+        if ($this->debtorAccountCurreny !== null) {
+            $debtorAccount->appendChild(Text::xml($doc, 'Ccy', $this->debtorAccountCurreny));
+        }
+
         $root->appendChild($debtorAccount);
 
+        // Debtor agent
         $debtorAgent = $doc->createElement('DbtrAgt');
         $debtorAgent->appendChild($this->debtorAgent->asDom($doc));
         $root->appendChild($debtorAgent);
+
+        // Debtor agent account
+        $debtorAgentAccount = $doc->createElement('DbtrAgtAcct');
+        $debtorAgentAccount->appendChild($this->debtorAgentAccountDetail->asDom($doc));
+        $root->appendChild($debtorAgentAccount);
+
 
         // FIXME: the $localInstrument here will not even be set if
         // there is no payment information set further up.

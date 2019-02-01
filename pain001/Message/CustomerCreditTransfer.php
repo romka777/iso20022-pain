@@ -25,7 +25,7 @@ class CustomerCreditTransfer extends AbstractMessage
     /**
      * @var string
      */
-    protected $initiatingPartyName2;
+    protected $initiatingPartyNameExt;
 
     protected $initiatingPartyId;
 
@@ -57,11 +57,11 @@ class CustomerCreditTransfer extends AbstractMessage
     public function __construct($id, $initiatingPartyName, OrganisationIdentificationInterface $initiatingPartyId)
     {
         $this->id = Text::assertIdentifier($id);
-        if (mb_strlen($initiatingPartyName, 'UTF-8') < 70) {
+        if (mb_strlen($initiatingPartyName, 'UTF-8') <= 70) {
             $this->initiatingPartyName = Text::assert($initiatingPartyName, 70);
         } else {
             $this->initiatingPartyName = Text::assertPattern(mb_substr($initiatingPartyName, 0, 70, 'UTF-8'));
-            $this->initiatingPartyName2 = Text::assertPattern(mb_substr($initiatingPartyName, 70, null, 'UTF-8'));
+            $this->initiatingPartyNameExt = Text::assertPattern(mb_substr($initiatingPartyName, 70, null, 'UTF-8'));
         }
 
         $this->initiatingPartyId = $initiatingPartyId;
@@ -163,9 +163,9 @@ class CustomerCreditTransfer extends AbstractMessage
         $initgParty = $doc->createElement('InitgPty');
         // Initiating Party Name
         $initgParty->appendChild(Text::xml($doc, 'Nm', $this->initiatingPartyName));
-        if ($this->initiatingPartyName2 !== null) {
+        if ($this->initiatingPartyNameExt !== null) {
             $ctctDtls = $initgParty->appendChild($doc->createElement('CtctDtls'));
-            $ctctDtls->appendChild(Text::xml($doc, 'Nm', $this->initiatingPartyName2));
+            $ctctDtls->appendChild(Text::xml($doc, 'Nm', $this->initiatingPartyNameExt));
 
         }
         // Initiating Party Id Details
