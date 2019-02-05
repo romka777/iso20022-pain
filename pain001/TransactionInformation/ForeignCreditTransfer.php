@@ -2,6 +2,8 @@
 
 namespace Consilience\Pain001\TransactionInformation;
 
+use Consilience\Pain001\FinancialInstitution\RUBIC;
+use Consilience\Pain001\OrganisationIdentificationInterface;
 use DOMDocument;
 use Consilience\Pain001\AccountInterface;
 use Consilience\Pain001\FinancialInstitution\BIC;
@@ -17,7 +19,7 @@ use Consilience\Pain001\PostalAddressInterface;
 class ForeignCreditTransfer extends CreditTransfer
 {
     /**
-     * @var \Consilience\Pain001\AccountInterface\AccountInterface
+     * @var AccountInterface
      */
     protected $creditorAccount;
 
@@ -27,15 +29,25 @@ class ForeignCreditTransfer extends CreditTransfer
     protected $creditorAgent;
 
     /**
+     * @var AccountInterface
+     */
+    protected $creditorAgentAccountDetail;
+
+    /**
      * @var BIC
      */
     protected $intermediaryAgent;
 
     /**
-     * {@inheritdoc}
-     *
-     * @param \Consilience\Pain001\AccountInterface\AccountInterface                $creditorAccount Account of the creditor
-     * @param BIC|FinancialInstitutionAddress $creditorAgent   BIC or address of the creditor's financial institution
+     * ForeignCreditTransfer constructor.
+     * @param $instructionId
+     * @param $endToEndId
+     * @param Money $amount
+     * @param $creditorName
+     * @param OrganisationIdentificationInterface $creditorId
+     * @param PostalAddressInterface $creditorAddress
+     * @param AccountInterface $creditorAccount
+     * @param FinancialInstitutionInterface $creditorAgent
      */
     public function __construct(
         $instructionId,
@@ -43,17 +55,20 @@ class ForeignCreditTransfer extends CreditTransfer
         Money $amount,
         $creditorName,
         PostalAddressInterface $creditorAddress,
+        OrganisationIdentificationInterface $creditorId,
         AccountInterface $creditorAccount,
-        FinancialInstitutionInterface $creditorAgent
+        FinancialInstitutionInterface $creditorAgent,
+        AccountInterface $creditorAgentAccountDetail
     ) {
-        parent::__construct($instructionId, $endToEndId, $amount, $creditorName, $creditorAddress);
+        parent::__construct($instructionId, $endToEndId, $amount, $creditorName, $creditorAddress, $creditorId);
 
-        if (!$creditorAgent instanceof BIC && !$creditorAgent instanceof FinancialInstitutionAddress) {
+        if (!$creditorAgent instanceof RUBIC && !$creditorAgent instanceof BIC && !$creditorAgent instanceof FinancialInstitutionAddress) {
             throw new \InvalidArgumentException('The creditor agent must be an instance of BIC or FinancialInstitutionAddress.');
         }
 
         $this->creditorAccount = $creditorAccount;
         $this->creditorAgent = $creditorAgent;
+        $this->creditorAgentAccountDetail = $creditorAgentAccountDetail;
     }
 
     /**
@@ -87,6 +102,10 @@ class ForeignCreditTransfer extends CreditTransfer
 
         $creditorAccount = $doc->createElement('CdtrAcct');
         $creditorAccount->appendChild($this->creditorAccount->asDom($doc));
+        $root->appendChild($creditorAccount);
+
+        $creditorAccount = $doc->createElement('CdtrAgtAcct');
+        $creditorAccount->appendChild($this->creditorAgentAccountDetail->asDom($doc));
         $root->appendChild($creditorAccount);
 
         $this->appendPurpose($doc, $root);

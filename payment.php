@@ -22,6 +22,9 @@ use Consilience\Pain001\OrganisationIdentification\Inn;
 use Consilience\Pain001\Account\GeneralAccount;
 use Consilience\Pain001\FinancialInstitution\RUBIC;
 use Consilience\Pain001\Account\BBAN;
+use Consilience\Pain001\TransactionInformation\ForeignCreditTransfer;
+use Consilience\Pain001\PaymentInformation\ServiceLevelCode;
+use Consilience\Pain001\TransactionInformation\PurposeProprietary;
 
 $transaction1 = new BankCreditTransfer(
     'instr-001',
@@ -42,24 +45,42 @@ $transaction2 = new IS1CreditTransfer(
     new PostalAccount('80-151-4')
 );
 
-$payment = new PaymentInformation(
-    'payment-001',
-    'InnoMuster AG 1111111111111111111111111111111111111111111111111133111551111111111111111111111111111111111111',
-    new Inn('7730189312'),
-    new RUBIC('123456789', 'АО "АЛЬФА-БАНК" Г МОСКВА', new UnstructuredPostalAddress(null, null, 'RU')),
-    new GeneralAccount('40702810901300013927'),
-    new BBAN('40702810901300013927'),
-    'RUB',
-    new UnstructuredPostalAddress(null, null, 'RU')
+$transaction = new ForeignCreditTransfer(
+    '12323123123',                                                  // Уникальный id платежа
+    '20',                                                           // Номер документа
+    Money::RUB(5000000),                                            // Сумма в копейках
+    'Сахаров Владимир Сергеевич',                                   // ФИО получателя
+    new UnstructuredPostalAddress(null, null, 'RU'),                // Адрес получателя
+    new Inn('7730189312'),                                          // ИНН получателя
+    new BBAN('40702810901300013927'),                               // Счет получателя
+    new RUBIC('123456789', 'АО "АЛЬФА-БАНК" Г МОСКВА', new UnstructuredPostalAddress(null, null, 'RU')),    // банк получателя
+    new GeneralAccount('40702810901300013927')                      // Корсчет банка получателя
 );
-$payment->setServiceLevel(new \Consilience\Pain001\PaymentInformation\ServiceLevelCode('NURG'));
+
+$transaction->setServiceLevel(new ServiceLevelCode(ServiceLevelCode::CODE_NURG));   // Срочность
+$transaction->setRemittanceInformation('Обычный платеж физ лицу');                  // Комментарий
+$transaction->setCreditorReference('123');                                          // Код платежа (УИН)
+$transaction->setPurpose(new PurposeProprietary('5'));                              // Очередность платежа
+
+$payment = new PaymentInformation(
+    '7730189312_pain_PKG_20180521_00003',                           // Уникальный id пакета платежей
+    'ООО "Мир технологий"',                                         // название плательщика
+    new Inn('7730189312'),                                          // ИНН плательщика
+    new RUBIC('123456789', 'АО "АЛЬФА-БАНК" Г МОСКВА', new UnstructuredPostalAddress(null, null, 'RU')),    // банк плательщика
+    new GeneralAccount('40702810901300013927'),                     // Корсчет банка плательщика
+    new BBAN('40702810901300013927'),                               // счет плательщика
+    'RUB',                                                          // валюта
+    new UnstructuredPostalAddress(null, null, 'RU')                 // почтовый адрес плательщика
+);
+$payment->setServiceLevel(new ServiceLevelCode(ServiceLevelCode::CODE_NURG));   // Срочность
+$payment->addTransaction($transaction);
 //$payment->addTransaction($transaction1);
 //$payment->addTransaction($transaction2);
 
 $message = new CustomerCreditTransfer(
-    'message-001',
-    'InnoMuster AG 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111',
-    new Inn('7730189312')
+    '7730189312_pain_MSG_20180521_00003',                           // id сообщения
+    'ООО "Мир технологий"',                                         // название отправителя сообщения
+    new Inn('7730189312')                                           // инн отправителя сообщения
 );
 $message->addPayment($payment);
 

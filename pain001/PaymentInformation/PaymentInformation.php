@@ -77,7 +77,7 @@ class PaymentInformation
     /**
      * @var OrganisationIdentificationInterface
      */
-    protected $debtorid;
+    protected $debtorId;
 
     /**
      * @var FinancialInstitutionInterface
@@ -152,7 +152,7 @@ class PaymentInformation
             $this->debtorNameExt = Text::assertPattern(mb_substr($debtorName, 70, null, 'UTF-8'));
         }
 
-        $this->debtorid = $debtorId;
+        $this->debtorId = $debtorId;
         $this->debtorAgent = $debtorAgent;
         $this->debtorAgentAccountDetail = $debtorAgentAccountDetail;
         $this->debtorAccountDetail = $debtorAccountDetail;
@@ -411,7 +411,7 @@ class PaymentInformation
         }
 
         // Debtor Id Details
-        $debtor->appendChild($this->debtorid->asDom($doc));
+        $debtor->appendChild($this->debtorId->asDom($doc));
 
         $root->appendChild($debtor);
 
@@ -469,7 +469,8 @@ class PaymentInformation
 
                 $transactionServiceLevel = $transaction->getServiceLevel();
 
-                if ($transactionServiceLevel !== null && $transactionServiceLevel !== $serviceLevel) {
+                if ($transactionServiceLevel !== null) {
+                    if ($transactionServiceLevel->getCode() !== $serviceLevel->getCode())
                     throw new \LogicException('You can not set the service level on B- and C-level.');
                 }
             }

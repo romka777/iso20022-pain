@@ -7,8 +7,11 @@ use InvalidArgumentException;
 
 class Text
 {
+    /**
+     * @todo proper this
+     */
     const TEXT_NON_CH = '/^$/u';
-    const TEXT_NON_SWIFT = '/[^A-Za-z0-9 .,:\'\/()?+\-]+/';
+    const TEXT_NON_SWIFT = '/^$/';
 
     /**
      * Sanitizes and trims a string to conform to the Swiss character

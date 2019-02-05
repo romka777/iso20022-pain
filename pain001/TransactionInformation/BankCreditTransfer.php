@@ -31,7 +31,7 @@ class BankCreditTransfer extends CreditTransfer
     protected $creditorIBAN;
 
     /**
-     * @var \Consilience\Pain001\FinancialInstitution\FinancialInstitutionInterface
+     * @var FinancialInstitutionInterface
      */
     protected $creditorAgent;
 

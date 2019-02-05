@@ -2,6 +2,8 @@
 
 namespace Consilience\Pain001\TransactionInformation;
 
+use Consilience\Pain001\OrganisationIdentificationInterface;
+use Consilience\Pain001\PaymentInformation\ServiceLevelInterface;
 use Money\Money;
 use Consilience\Pain001\PaymentInformation\PaymentInformation;
 use Consilience\Pain001\PostalAddressInterface;
@@ -35,6 +37,11 @@ abstract class CreditTransfer
      * @var PostalAddressInterface
      */
     protected $creditorAddress;
+
+    /**
+     * @var OrganisationIdentificationInterface
+     */
+    protected $creditorId;
 
     /**
      * @var Money
@@ -92,7 +99,8 @@ abstract class CreditTransfer
         $endToEndId,
         Money $amount,
         $creditorName,
-        PostalAddressInterface $creditorAddress
+        PostalAddressInterface $creditorAddress,
+        OrganisationIdentificationInterface $creditorId = null
     ) {
         $this->instructionId = Text::assertIdentifier($instructionId);
         $this->endToEndId = Text::assertIdentifier($endToEndId);
@@ -102,6 +110,7 @@ abstract class CreditTransfer
             70
         );
         $this->creditorAddress = $creditorAddress;
+        $this->creditorId = $creditorId;
     }
 
     /**
@@ -133,6 +142,12 @@ abstract class CreditTransfer
     public function getServiceLevel()
     {
         return $this->serviceLevel;
+    }
+
+    public function setServiceLevel(ServiceLevelInterface $value)
+    {
+        $this->serviceLevel = $value;
+        return $this;
     }
 
     /**
@@ -322,6 +337,12 @@ abstract class CreditTransfer
 
         if ($this->creditorAddress !== null) {
             $creditor->appendChild($this->creditorAddress->asDom($doc));
+        }
+
+        // The id is optional.
+
+        if ($this->creditorId !== null) {
+            $creditor->appendChild($this->creditorId->asDom($doc));
         }
 
         return $creditor;

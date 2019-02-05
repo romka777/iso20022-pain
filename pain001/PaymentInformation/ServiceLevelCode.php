@@ -14,6 +14,9 @@ use Consilience\Pain001\Text;
 
 class ServiceLevelCode implements ServiceLevelInterface
 {
+    public const CODE_NURG = 'NURG';    // обычный
+    public const CODE_URGP = 'URGP';    // срочный
+
     protected $code;
 
     /**
@@ -32,5 +35,10 @@ class ServiceLevelCode implements ServiceLevelInterface
     public function asDom(DOMDocument $doc)
     {
         return $doc->createElement('Cd', $this->code);
+    }
+
+    public function getCode()
+    {
+        return $this->code;
     }
 }
